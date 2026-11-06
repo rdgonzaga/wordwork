@@ -1,0 +1,69 @@
+:root {
+  color-scheme: light;
+
+  --bg: #f6f3ec;
+  --surface: #fffdf8;
+  --text: #1c2430;
+  --text-muted: #5d6673;
+  --border: #ddd6c8;
+  --accent: #1f4f8f;
+  --accent-text: #ffffff;
+  --focus: #1f4f8f;
+
+  /* German article colors */
+  --de-der: #1f5fae;
+  --de-die: #b3312f;
+  --de-das: #2f7d3f;
+
+  --font-ui: 'Inter Variable', system-ui, sans-serif;
+  --font-term: 'Source Serif 4 Variable', Georgia, serif;
+
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-term: 2rem;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  --radius: 6px;
+  --nav-h: 3.5rem;
+  --rail-w: 12rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #121820;
+    --surface: #18202b;
+    --text: #ece7dc;
+    --text-muted: #9aa3b0;
+    --border: #2b3542;
+    --accent: #7fb0f0;
+    --accent-text: #0e1620;
+    --focus: #7fb0f0;
+    --de-der: #7fb0f0;
+    --de-die: #f08a86;
+    --de-das: #7fcf8f;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #121820;
+  --surface: #18202b;
+  --text: #ece7dc;
+  --text-muted: #9aa3b0;
+  --border: #2b3542;
+  --accent: #7fb0f0;
+  --accent-text: #0e1620;
+  --focus: #7fb0f0;
+  --de-der: #7fb0f0;
+  --de-die: #f08a86;
+  --de-das: #7fcf8f;
+}
