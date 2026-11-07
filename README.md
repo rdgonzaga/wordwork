@@ -27,3 +27,5 @@ Optional. Without it the app runs fully offline in guest mode.
 6. Copy `.env.example` to `.env.local` and fill in the project URL and anon key (Project Settings > API).
 
 Every table has row level security: a signed-in user can only read and write rows with their own `user_id`. Anon can't touch anything. Nothing is hard-deleted; removals are tombstones (`deleted = true`). The anon key is in the built JS by design, so RLS is the actual protection.
+
+Sync is last-write-wins per row. A device is tied to the first account that syncs on it, and local guest data merges into that account on first sign-in. Signing in as a different account on the same device is refused until site data is cleared.

@@ -25,9 +25,12 @@ interface LocalRow {
   dirty: 0 | 1
 }
 
-/** Postgres integrity-constraint violations (class 23): a bad row, not a bad connection. */
+/**
+ * Postgres data errors (class 22: bad or out-of-range value) and integrity-constraint
+ * violations (class 23): a bad row, not a bad connection.
+ */
 function isConstraintError(e: unknown): e is RemoteError {
-  return e instanceof RemoteError && Boolean(e.code?.startsWith('23'))
+  return e instanceof RemoteError && /^2[23]/.test(e.code ?? '')
 }
 
 /**

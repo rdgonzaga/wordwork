@@ -13,6 +13,8 @@ export class FakeServer implements Remote {
   failWith: Error | null = null
   /** Reject any batch containing a row this returns true for, like a CHECK violation. */
   rejectRow: ((table: SyncTable, row: Row) => boolean) | null = null
+  /** Postgres error code used by `rejectRow`. */
+  rejectCode = '23514'
   /** Runs after rows are written, before the response returns (simulates edits mid-push). */
   onUpsert: (() => Promise<void>) | null = null
   upsertCalls: { table: SyncTable; rows: Row[] }[] = []
@@ -29,7 +31,7 @@ export class FakeServer implements Remote {
     if (this.failWith) throw this.failWith
     this.upsertCalls.push({ table, rows })
     if (this.rejectRow && rows.some((r) => this.rejectRow!(table, r))) {
-      throw new RemoteError('violates check constraint', '23514')
+      throw new RemoteError('violates check constraint', this.rejectCode)
     }
     const store = this.tables.get(table) ?? new Map<string, Row>()
     this.tables.set(table, store)

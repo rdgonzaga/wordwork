@@ -113,6 +113,17 @@ describe('push', () => {
     expect((await a.cards.get(good1.id))?.dirty).toBe(0)
   })
 
+  it('treats a bad-value error (class 22) as a per-row failure too', async () => {
+    const a = device()
+    const good = await addCard(a, 'deck-1', input, t0)
+    const bad = await addCard(a, 'deck-1', { ...input, term: 'BAD' }, t0)
+    server.rejectRow = (_t, row) => row.term === 'BAD'
+    server.rejectCode = '22P02'
+    const res = await sync(a)
+    expect(res.failed.map((f) => f.id)).toEqual([bad.id])
+    expect(server.row('cards', good.id)).toBeDefined()
+  })
+
   it('a device with a slow clock still wins its edit, because updatedAt only moves forward', async () => {
     const a = device()
     const b = device()
@@ -197,7 +208,6 @@ describe('pull', () => {
     await updateCard(a, card.id, { ...input, translation: 'from A' }, at(1000))
     await sync(a)
     await updateCard(b, card.id, { ...input, translation: 'from B' }, at(2000))
-    server.failWith = null
     // B pulls A's older edit first, but its own newer edit is dirty and must survive.
     await sync(b)
     expect((await b.cards.get(card.id))?.translation).toBe('from B')
@@ -250,16 +260,48 @@ describe('pull', () => {
     expect(await b.reviews.get(review.id)).toMatchObject({ deleted: true, rating: 3 })
   })
 
-  it('accepts an equal-stamp server review over a dirty local copy', async () => {
+  it('takes the server review on an equal stamp, since the server keeps immutable columns', async () => {
     const a = device()
     const card = await addCard(a, 'deck-1', input, t0)
     const { review } = await rateCard(a, card.id, 3, at(1000), 900)
     await sync(a)
-    // The server's copy of the review (same updated_at) is canonical.
+    // Local copy differs (rating 4) with the same updatedAt and is dirty; its push is rejected,
+    // so only the pull can resolve it.
+    await a.reviews.update(review.id, { rating: 4, dirty: 1 })
+    server.rejectRow = (table) => table === 'reviews'
     server.tables.get('reviews')!.get(review.id)!.server_seq = ++server.seq
-    await a.reviews.update(review.id, { dirty: 1 })
+
+    const res = await sync(a)
+    expect(res.failed).toHaveLength(1)
+    expect(await a.reviews.get(review.id)).toMatchObject({ rating: 3, dirty: 0 })
+  })
+
+  it('pulls settings onto a device that has none', async () => {
+    const a = device()
+    const b = device()
+    await updateSettings(a, { newPerDay: 5, rolloverHour: 3 }, t0)
     await sync(a)
-    expect((await a.reviews.get(review.id))?.dirty).toBe(0)
+    await sync(b)
+    expect(await b.settings.get('me')).toMatchObject({ newPerDay: 5, rolloverHour: 3, dirty: 0 })
+  })
+
+  it('pulls a page of exactly the page size without looping forever', async () => {
+    const a = device()
+    const b = device()
+    await a.decks.bulkAdd(
+      Array.from({ length: 500 }, (_, i) => ({
+        id: `d${i}`,
+        language: 'de',
+        name: `Deck ${i}`,
+        createdAt: 1,
+        updatedAt: i + 1,
+        deleted: false,
+        dirty: 1 as const,
+      })),
+    )
+    await sync(a)
+    expect((await sync(b)).pulled).toBe(500)
+    expect(await b.decks.count()).toBe(500)
   })
 
   it('pulls in pages and remembers a cursor per table', async () => {

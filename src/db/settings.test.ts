@@ -66,3 +66,19 @@ describe('settings', () => {
     expect(s).toMatchObject({ newPerDay: 20, rolloverHour: 3 })
   })
 })
+
+describe('settings sanitizing', () => {
+  it('rounds and clamps to what the server accepts, and drops non-numbers', async () => {
+    await updateSettings(
+      db,
+      { newPerDay: 7.6, rolloverHour: 30, goalHours: 0, streakMinutes: Number.NaN },
+      new Date('2026-11-07T05:00:00Z'),
+    )
+    expect(await getSettings(db)).toMatchObject({
+      newPerDay: 8,
+      rolloverHour: 23,
+      goalHours: 1,
+      streakMinutes: 10,
+    })
+  })
+})
