@@ -11,7 +11,8 @@ Try it: https://rdgonzaga.github.io/wordwork/
 - **der / die / das drill.** A quick quiz for German noun genders.
 - **Study log.** Track minutes toward a goal, with a streak that forgives a missed day and a heatmap of the last few months.
 - **Journal.** One sentence a day in the language you're learning, plus a song of the week.
-- **Works offline.** Install it on your phone's home screen. Your data stays on your device, and signing in syncs it across devices.
+- **Works offline.** Install it on your phone's home screen. Your data stays on your device.
+- **Sync.** Sync across devices is private for now: there's no sign-up yet, so everyone else uses the app as a guest.
 - **Backup.** Export your cards and history to a file, or import one.
 
 ## Built with
