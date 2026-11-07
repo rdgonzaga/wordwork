@@ -1,0 +1,74 @@
+.journal-day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.journal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.journal-form label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.journal-form input,
+.journal-form textarea,
+.journal-day input {
+  padding: var(--space-2) var(--space-3);
+  min-height: 3rem;
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.journal-form textarea {
+  resize: vertical;
+}
+
+.journal-form button {
+  align-self: flex-start;
+  min-height: 3rem;
+  padding: var(--space-2) var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.journal-form button:disabled {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.journal-list {
+  list-style: none;
+  margin: 0 0 var(--space-6);
+  padding: 0;
+}
+
+.journal-list li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.journal-list button.link {
+  align-self: flex-start;
+}
+
+.journal-notes {
+  display: block;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+}

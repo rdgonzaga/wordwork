@@ -1,4 +1,4 @@
-import { addDays, daysBetween, type DayKey } from './day'
+import { addDays, daysBetween, weekStart, type DayKey } from './day'
 
 export const HEATMAP_WEEKS = 16
 
@@ -20,19 +20,13 @@ export function level(minutes: number, hitMinutes: number): HeatCell['level'] {
   return 4
 }
 
-/** Monday = 0 … Sunday = 6. */
-function weekday(day: DayKey): number {
-  return (new Date(`${day}T00:00:00Z`).getUTCDay() + 6) % 7
-}
-
 /** Columns are weeks (oldest first), rows are Monday to Sunday. The last column holds `today`. */
 export function heatmap(
   totals: ReadonlyMap<DayKey, number>,
   today: DayKey,
   hitMinutes: number,
 ): HeatCell[][] {
-  const lastMonday = addDays(today, -weekday(today))
-  const firstMonday = addDays(lastMonday, -7 * (HEATMAP_WEEKS - 1))
+  const firstMonday = addDays(weekStart(today), -7 * (HEATMAP_WEEKS - 1))
 
   return Array.from({ length: HEATMAP_WEEKS }, (_, w) =>
     Array.from({ length: 7 }, (_, d) => {

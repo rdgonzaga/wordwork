@@ -51,6 +51,16 @@ export function addDays(day: DayKey, n: number): DayKey {
   return date.toISOString().slice(0, 10)
 }
 
+/** Monday = 0 … Sunday = 6. */
+export function weekday(day: DayKey): number {
+  return (new Date(`${day}T00:00:00Z`).getUTCDay() + 6) % 7
+}
+
+/** The Monday of the week `day` is in. */
+export function weekStart(day: DayKey): DayKey {
+  return addDays(day, -weekday(day))
+}
+
 /** Whole days from `from` to `to`; negative if `to` is earlier. */
 export function daysBetween(from: DayKey, to: DayKey): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / MS_PER_DAY)
