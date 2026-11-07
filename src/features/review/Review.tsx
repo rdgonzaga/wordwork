@@ -193,7 +193,7 @@ function Ratings({
   return (
     <div className="ratings">
       {RATINGS.map(({ rating, label }) => (
-        <button key={rating} type="button" onClick={() => onRate(rating)}>
+        <button key={rating} type="button" data-rating={rating} onClick={() => onRate(rating)}>
           <span>{label}</span>
           <small>{labels[rating]}</small>
         </button>

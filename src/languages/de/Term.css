@@ -1,25 +1,25 @@
 :root {
-  --de-der: #1f5fae;
-  --de-die: #b3312f;
-  --de-das: #2f7d3f;
+  --de-der: #0060d6;
+  --de-die: #c4245a;
+  --de-das: #0a7d3b;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --de-der: #7fb0f0;
-    --de-die: #f08a86;
-    --de-das: #7fcf8f;
+    --de-der: #52a8ff;
+    --de-die: #ff6b9a;
+    --de-das: #4ade80;
   }
 }
 
 :root[data-theme='dark'] {
-  --de-der: #7fb0f0;
-  --de-die: #f08a86;
-  --de-das: #7fcf8f;
+  --de-der: #52a8ff;
+  --de-die: #ff6b9a;
+  --de-das: #4ade80;
 }
 
 .de-article {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .de-article--der {

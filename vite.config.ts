@@ -19,8 +19,8 @@ export default defineConfig({
         start_url: '/wordwork/',
         scope: '/wordwork/',
         display: 'standalone',
-        background_color: '#18202b',
-        theme_color: '#18202b',
+        background_color: '#000000',
+        theme_color: '#000000',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },

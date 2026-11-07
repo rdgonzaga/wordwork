@@ -1,23 +1,30 @@
 :root {
   color-scheme: light;
 
-  --bg: #f6f3ec;
-  --surface: #fffdf8;
-  --text: #1c2430;
-  --text-muted: #5d6673;
-  --border: #ddd6c8;
-  --accent: #1f4f8f;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --subtle: #f2f2f2;
+  --text: #0a0a0a;
+  --text-muted: #666666;
+  --border: #ebebeb;
+  --accent: #0a0a0a;
   --accent-text: #ffffff;
-  --focus: #1f4f8f;
+  --focus: #0a0a0a;
+  --danger: #d0021b;
 
-  --font-ui: 'Inter Variable', system-ui, sans-serif;
-  --font-term: 'Source Serif 4 Variable', Georgia, serif;
+  --heat-1: #d9d9d9;
+  --heat-2: #a8a8a8;
+  --heat-3: #5f5f5f;
+  --heat-4: #0a0a0a;
+
+  --font-ui: 'Geist Variable', system-ui, sans-serif;
+  --font-term: 'Geist Variable', system-ui, sans-serif;
 
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-lg: 1.25rem;
   --text-xl: 1.75rem;
-  --text-term: 2rem;
+  --text-term: 2.5rem;
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -26,7 +33,8 @@
   --space-6: 1.5rem;
   --space-8: 2rem;
 
-  --radius: 6px;
+  --radius: 8px;
+  --radius-sm: 6px;
   --nav-h: 3.5rem;
   --rail-w: 12rem;
 }
@@ -34,25 +42,37 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --bg: #121820;
-    --surface: #18202b;
-    --text: #ece7dc;
-    --text-muted: #9aa3b0;
-    --border: #2b3542;
-    --accent: #7fb0f0;
-    --accent-text: #0e1620;
-    --focus: #7fb0f0;
+    --bg: #000000;
+    --surface: #0a0a0a;
+    --subtle: #141414;
+    --text: #ededed;
+    --text-muted: #a1a1a1;
+    --border: #1f1f1f;
+    --accent: #ededed;
+    --accent-text: #000000;
+    --focus: #ededed;
+    --danger: #ff6166;
+    --heat-1: #2e2e2e;
+    --heat-2: #5a5a5a;
+    --heat-3: #9a9a9a;
+    --heat-4: #ededed;
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #121820;
-  --surface: #18202b;
-  --text: #ece7dc;
-  --text-muted: #9aa3b0;
-  --border: #2b3542;
-  --accent: #7fb0f0;
-  --accent-text: #0e1620;
-  --focus: #7fb0f0;
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --subtle: #141414;
+  --text: #ededed;
+  --text-muted: #a1a1a1;
+  --border: #1f1f1f;
+  --accent: #ededed;
+  --accent-text: #000000;
+  --focus: #ededed;
+  --danger: #ff6166;
+  --heat-1: #2e2e2e;
+  --heat-2: #5a5a5a;
+  --heat-3: #9a9a9a;
+  --heat-4: #ededed;
 }
