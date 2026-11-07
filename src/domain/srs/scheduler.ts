@@ -154,6 +154,11 @@ function round2(n: number): number {
 export function replay(cardId: string, reviews: Review[], settings: DaySettings): Schedule {
   return reviews
     .filter((r) => r.cardId === cardId && !r.deleted)
-    .sort((a, b) => a.reviewedAt - b.reviewedAt || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+    .sort(byReviewTime)
     .reduce((s, r) => schedule(s, r.rating, new Date(r.reviewedAt), settings), newSchedule(cardId))
+}
+
+/** Time order with id as tiebreak, so every device replays the same log the same way. */
+export function byReviewTime(a: Review, b: Review): number {
+  return a.reviewedAt - b.reviewedAt || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
 }
