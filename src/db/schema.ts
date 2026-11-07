@@ -98,11 +98,25 @@ export interface Settings extends DaySettings {
   dirty: 0 | 1
 }
 
+/** Tables that sync with Supabase, in push/pull order. */
+export const SYNC_TABLES = [
+  'decks',
+  'cards',
+  'reviews',
+  'minutes',
+  'diary',
+  'songs',
+  'settings',
+] as const
+export type SyncTable = (typeof SYNC_TABLES)[number]
+
 /** Local only. */
 export interface SyncMeta {
   id: 'me'
-  cursor: number
+  /** Highest `server_seq` pulled, per table. Missing means 0. */
+  cursors: Partial<Record<SyncTable, number>>
   deviceId: string
+  /** The account this database syncs with. Set on first sync. */
   userId?: string
 }
 

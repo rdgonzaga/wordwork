@@ -1,4 +1,5 @@
 import type { Settings, WordworkDb } from './schema'
+import { stamp } from './stamp.ts'
 
 export type SettingsPatch = Partial<Omit<Settings, 'id' | 'updatedAt' | 'dirty'>>
 
@@ -26,6 +27,12 @@ export async function updateSettings(
 ): Promise<void> {
   await db.transaction('rw', db.settings, async () => {
     const current = await getSettings(db)
-    await db.settings.put({ ...current, ...patch, id: 'me', updatedAt: now.getTime(), dirty: 1 })
+    await db.settings.put({
+      ...current,
+      ...patch,
+      id: 'me',
+      updatedAt: stamp(current.updatedAt, now),
+      dirty: 1,
+    })
   })
 }

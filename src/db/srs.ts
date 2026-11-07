@@ -1,8 +1,10 @@
 import { toDay } from '../domain/day.ts'
 import { buildQueue, countToday, type QueueItem } from '../domain/srs/queue.ts'
 import { newSchedule, replay, schedule } from '../domain/srs/scheduler.ts'
-import type { Card, Rating, Review, Schedule, Settings, SyncMeta, WordworkDb } from './schema.ts'
+import { getSyncMeta } from './meta.ts'
+import type { Card, Rating, Review, Schedule, Settings, WordworkDb } from './schema.ts'
 import { getSettings } from './settings.ts'
+import { stamp } from './stamp.ts'
 
 export interface StudyState {
   settings: Settings
@@ -47,14 +49,6 @@ export async function loadStudyState(
   return { settings, cards: new Map(cardList.map((c) => [c.id, c])), schedules, queue }
 }
 
-async function getDeviceId(db: WordworkDb): Promise<string> {
-  const meta = await db.syncMeta.get('me')
-  if (meta) return meta.deviceId
-  const fresh: SyncMeta = { id: 'me', cursor: 0, deviceId: crypto.randomUUID() }
-  await db.syncMeta.add(fresh).catch(() => undefined)
-  return (await db.syncMeta.get('me'))?.deviceId ?? fresh.deviceId
-}
-
 /** Logs a rating and updates the card's cached schedule. Returns the review and the new schedule. */
 export async function rateCard(
   db: WordworkDb,
@@ -64,7 +58,7 @@ export async function rateCard(
   durationMs: number,
 ): Promise<{ review: Review; schedule: Schedule }> {
   const settings = await getSettings(db)
-  const deviceId = await getDeviceId(db)
+  const deviceId = (await getSyncMeta(db)).deviceId
   return db.transaction('rw', db.reviews, db.schedules, async () => {
     const existing = await db.reviews.where('cardId').equals(cardId).toArray()
     const current = replay(cardId, existing, settings)
@@ -97,7 +91,11 @@ export async function undoReview(
   return db.transaction('rw', db.reviews, db.schedules, async () => {
     const review = await db.reviews.get(reviewId)
     if (!review) return undefined
-    await db.reviews.update(reviewId, { deleted: true, dirty: 1, updatedAt: now.getTime() })
+    await db.reviews.update(reviewId, {
+      deleted: true,
+      dirty: 1,
+      updatedAt: stamp(review.updatedAt, now),
+    })
     const rest = await db.reviews.where('cardId').equals(review.cardId).toArray()
     if (!rest.some((r) => !r.deleted)) {
       await db.schedules.delete(review.cardId)
