@@ -1,35 +1,19 @@
 # wordwork
 
-A local-first PWA for daily language study. Spaced-repetition cards, a minutes log with a forgiving streak, a sentence of the day and a song of the week. German, Italian and Japanese, each with a starter deck.
+A small app for studying a language every day. It shows you the words you're about to forget, keeps track of how long you've studied, and nudges you to write a sentence a day.
 
-Everything works offline in guest mode. Signing in syncs across devices through Supabase.
+Try it: https://rdgonzaga.github.io/wordwork/
 
-## Development
+## What it does
 
-```sh
-npm install
-npm run dev        # http://localhost:5173/wordwork/
-npm run lint
-npm run typecheck
-npm run test
-npm run build
-```
+- **Flashcards with spaced repetition.** Cards come back just before you'd forget them. Rate each one Again, Hard, Good or Easy.
+- **German, Italian and Japanese.** Each has a starter deck. German has about 340 beginner words grouped by topic, and Japanese words show their readings.
+- **der / die / das drill.** A quick quiz for German noun genders.
+- **Study log.** Track minutes toward a goal, with a streak that forgives a missed day and a heatmap of the last few months.
+- **Journal.** One sentence a day in the language you're learning, plus a song of the week.
+- **Works offline.** Install it on your phone's home screen. Your data stays on your device, and signing in syncs it across devices.
+- **Backup.** Export your cards and history to a file, or import one.
 
-## Sync (optional)
+## Built with
 
-1. Create a Supabase project.
-2. Authentication > Sign In / Providers: turn off "Allow new users to sign up" and "Allow anonymous sign-ins".
-3. Authentication > Users: add your own user with a password.
-4. SQL editor: run `supabase/migrations/0001_init.sql`.
-5. For sign-in by emailed code, the Magic Link email template must include `{{ .Token }}`.
-6. Copy `.env.example` to `.env.local` and fill in the project URL and anon key.
-
-The anon key ships in the bundle by design. Every table has row level security, so a user only reads and writes their own rows. Removals are tombstones, and conflicts resolve last-write-wins per row.
-
-## Deploy
-
-GitHub Pages, from `main` via `.github/workflows/deploy.yml`. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as repository secrets for sync to work in the build.
-
-## Backups
-
-Settings > Backup exports and imports JSON. Merge keeps the newer copy of each item. Replace makes the device match the file and deletes anything it lacks, on your other devices too, so export first.
+React, TypeScript, Vite, Dexie (IndexedDB) and Supabase for optional sync.
