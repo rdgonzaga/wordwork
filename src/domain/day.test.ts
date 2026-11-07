@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { toDay, type DaySettings } from './day'
+import { addDays, daysBetween, toDay, type DaySettings } from './day'
 
 const manila = (rolloverHour: number): DaySettings => ({ timeZone: 'Asia/Manila', rolloverHour })
 const at = (iso: string) => new Date(iso)
@@ -60,5 +60,19 @@ describe('toDay', () => {
     const instant = at('2026-11-06T16:00:00Z')
     expect(toDay(instant, { timeZone: 'UTC', rolloverHour: 0 })).toBe('2026-11-06')
     expect(toDay(instant, manila(0))).toBe('2026-11-07')
+  })
+})
+
+describe('addDays / daysBetween', () => {
+  it('adds across month and year ends', () => {
+    expect(addDays('2026-11-30', 1)).toBe('2026-12-01')
+    expect(addDays('2026-12-31', 1)).toBe('2027-01-01')
+    expect(addDays('2026-03-01', -1)).toBe('2026-02-28')
+  })
+
+  it('counts whole days, signed', () => {
+    expect(daysBetween('2026-11-06', '2026-11-16')).toBe(10)
+    expect(daysBetween('2026-11-16', '2026-11-06')).toBe(-10)
+    expect(daysBetween('2026-12-31', '2027-01-01')).toBe(1)
   })
 })
