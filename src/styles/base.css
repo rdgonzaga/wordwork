@@ -227,3 +227,47 @@ hr {
 .lookup-links a {
   color: var(--accent);
 }
+
+.sync-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.sync-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.sync-status[data-phase='idle'] .sync-dot {
+  background: var(--accent);
+}
+
+.sync-status[data-phase='syncing'] .sync-dot {
+  animation: sync-pulse 1s ease-in-out infinite;
+}
+
+.sync-status[data-phase='error'] {
+  color: var(--text);
+}
+
+.sync-status[data-phase='error'] .sync-dot {
+  background: var(--text);
+}
+
+@keyframes sync-pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sync-status[data-phase='syncing'] .sync-dot {
+    animation: none;
+  }
+}
