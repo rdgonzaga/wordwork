@@ -12,6 +12,7 @@ body {
   font-size: var(--text-base);
   line-height: 1.5;
   -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1,
@@ -20,6 +21,7 @@ h3 {
   margin: 0 0 var(--space-4);
   line-height: 1.2;
   font-weight: 600;
+  letter-spacing: -0.03em;
 }
 
 h1 {
@@ -41,6 +43,9 @@ p {
 .term {
   font-family: var(--font-term);
   font-size: var(--text-term);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
 }
 
 button {
@@ -57,6 +62,118 @@ hr {
   border: 0;
   border-top: 1px solid var(--border);
   margin: var(--space-6) 0;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-offset: 0;
+  border-color: var(--text);
+}
+
+button.primary {
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-6);
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 500;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+button.primary:active {
+  opacity: 0.8;
+}
+
+button.link {
+  padding: var(--space-1) var(--space-2);
+  background: none;
+  border: 0;
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+button.link:disabled {
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: default;
+}
+
+button.danger {
+  color: var(--danger);
+}
+
+.log-quick button,
+.log-custom button,
+.journal-form button,
+.data-actions button,
+.data-pick,
+.data-pending > button,
+.ratings button,
+.drill-choices button {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.log-quick button:active,
+.log-custom button:active,
+.journal-form button:active,
+.data-actions button:active,
+.data-pick:active,
+.data-pending > button:active,
+.ratings button:active,
+.drill-choices button:active,
+.segmented button:active,
+.card-list button:active,
+.speak:active {
+  background: var(--subtle);
+}
+
+@media (hover: hover) {
+  .log-quick button:hover,
+  .log-custom button:hover:not(:disabled),
+  .journal-form button:hover:not(:disabled),
+  .data-actions button:hover,
+  .data-pick:hover,
+  .data-pending > button:hover,
+  .ratings button:hover,
+  .drill-choices button:hover:not(:disabled),
+  .segmented button:hover,
+  .card-list button:hover,
+  .speak:hover {
+    background: var(--subtle);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  button,
+  .data-pick,
+  input,
+  select,
+  textarea {
+    transition:
+      background-color 120ms ease-out,
+      border-color 120ms ease-out,
+      opacity 120ms ease-out;
+  }
 }
 
 /* Layout shell: bottom tabs on phone, left rail from 768px */
@@ -81,7 +198,7 @@ hr {
   height: calc(var(--nav-h) + env(safe-area-inset-bottom));
   padding: 0 max(var(--space-4), env(safe-area-inset-right)) env(safe-area-inset-bottom)
     max(var(--space-4), env(safe-area-inset-left));
-  background: var(--surface);
+  background: var(--bg);
   border-top: 1px solid var(--border);
 }
 
@@ -98,7 +215,7 @@ hr {
 }
 
 .nav a[aria-current='page'] {
-  color: var(--accent);
+  color: var(--text);
   font-weight: 600;
 }
 
@@ -107,7 +224,7 @@ hr {
   height: 1.4rem;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.75;
+  stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -115,13 +232,14 @@ hr {
 .segmented {
   display: inline-flex;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
 .segmented button {
+  min-height: 2.75rem;
   padding: var(--space-2) var(--space-4);
-  background: var(--surface);
+  background: transparent;
   border: 0;
   border-right: 1px solid var(--border);
   cursor: pointer;
@@ -167,13 +285,14 @@ hr {
     flex-direction: row;
     justify-content: flex-start;
     gap: var(--space-3);
+    min-height: 2.75rem;
     padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius);
+    border-radius: var(--radius-sm);
     font-size: var(--text-base);
   }
 
   .nav a[aria-current='page'] {
-    background: var(--bg);
+    background: var(--subtle);
   }
 }
 
@@ -196,13 +315,14 @@ hr {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: none;
   width: 2.75rem;
   height: 2.75rem;
   padding: 0;
   background: none;
   border: 1px solid var(--border);
   border-radius: 50%;
-  color: var(--accent);
+  color: var(--text);
   cursor: pointer;
 }
 
@@ -211,7 +331,7 @@ hr {
   height: 1.4rem;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.75;
+  stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -225,7 +345,9 @@ hr {
 }
 
 .lookup-links a {
-  color: var(--accent);
+  color: var(--text);
+  text-decoration-color: var(--border);
+  text-underline-offset: 3px;
 }
 
 .sync-status {
@@ -245,7 +367,7 @@ hr {
 }
 
 .sync-status[data-phase='idle'] .sync-dot {
-  background: var(--accent);
+  background: var(--text);
 }
 
 .sync-status[data-phase='syncing'] .sync-dot {
@@ -257,7 +379,7 @@ hr {
 }
 
 .sync-status[data-phase='error'] .sync-dot {
-  background: var(--text);
+  background: var(--danger);
 }
 
 @keyframes sync-pulse {
@@ -285,16 +407,15 @@ hr {
   display: inline-flex;
   align-items: center;
   padding: var(--space-2) var(--space-6);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  cursor: pointer;
 }
 
 .data-pick input {
   position: absolute;
   width: 1px;
   height: 1px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
   opacity: 0;
 }
 

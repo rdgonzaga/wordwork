@@ -1,24 +1,30 @@
-.log-total {
-  padding: var(--space-6);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+.log-total,
+.log-streak {
+  padding: 0 0 var(--space-6);
   margin-bottom: var(--space-6);
+  border-bottom: 1px solid var(--border);
 }
 
-.log-hours {
-  font-size: var(--text-xl);
+.log-hours,
+.log-streak-count {
   margin: 0 0 var(--space-3);
+  font-size: 1.9rem;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 
-.log-hours .muted {
+.log-hours .muted,
+.log-streak-count .muted {
   font-size: var(--text-base);
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 .log-bar {
-  height: 0.75rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  height: 0.5rem;
+  background: var(--subtle);
   border-radius: 999px;
   overflow: hidden;
   margin-bottom: var(--space-3);
@@ -29,28 +35,12 @@
   background: var(--accent);
 }
 
-.log-streak {
-  padding: var(--space-6);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: var(--space-6);
-}
-
-.log-streak-count {
-  font-size: var(--text-xl);
-  margin: 0 0 var(--space-3);
-}
-
-.log-streak-count .muted {
-  font-size: var(--text-base);
-}
-
 .log-warning {
-  margin: 0 0 var(--space-3);
+  margin: 0 0 var(--space-4);
   padding: var(--space-2) var(--space-3);
-  border-left: 3px solid var(--accent);
-  background: var(--bg);
+  background: var(--subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
 }
 
 .heatmap {
@@ -64,24 +54,23 @@
 .heat {
   aspect-ratio: 1;
   border-radius: 2px;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: var(--subtle);
 }
 
 .heat[data-level='1'] {
-  background: color-mix(in srgb, var(--accent) 25%, var(--surface));
+  background: var(--heat-1);
 }
 
 .heat[data-level='2'] {
-  background: color-mix(in srgb, var(--accent) 50%, var(--surface));
+  background: var(--heat-2);
 }
 
 .heat[data-level='3'] {
-  background: color-mix(in srgb, var(--accent) 75%, var(--surface));
+  background: var(--heat-3);
 }
 
 .heat[data-level='4'] {
-  background: var(--accent);
+  background: var(--heat-4);
 }
 
 .heat[data-future] {
@@ -104,10 +93,6 @@
 .log-custom button {
   min-height: 3rem;
   padding: var(--space-2) var(--space-4);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  cursor: pointer;
 }
 
 .log-custom button:disabled {
@@ -131,12 +116,6 @@
 
 .log-custom input {
   min-height: 3rem;
-  padding: 0 var(--space-3);
-  font: inherit;
-  color: inherit;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
 }
 
 .log-list {
