@@ -11,6 +11,15 @@ export const german: LanguageModule = {
     { key: 'plural', label: 'Plural', type: 'text' },
   ],
   Term,
+  speechLang: 'de-DE',
+  lookupLinks: (card) => {
+    const word = encodeURIComponent(card.term.trim())
+    return [
+      { label: 'DWDS', url: `https://www.dwds.de/wb/${word}` },
+      { label: 'Wiktionary', url: `https://de.wiktionary.org/wiki/${word}` },
+      { label: 'Leo', url: `https://dict.leo.org/german-english/${word}` },
+    ]
+  },
   searchText: (card) =>
     [card.extra.article, card.term, card.extra.plural, card.translation]
       .filter(Boolean)

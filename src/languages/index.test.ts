@@ -32,6 +32,20 @@ describe('German module', () => {
     expect(html).toContain('Hund')
   })
 
+  it('speaks German', () => {
+    expect(de.speechLang).toBe('de-DE')
+  })
+
+  it('links DWDS, Wiktionary and Leo, with the term URL-encoded', () => {
+    const links = de.lookupLinks({ term: ' Straße ' })
+    expect(links.map((l) => l.label)).toEqual(['DWDS', 'Wiktionary', 'Leo'])
+    for (const l of links) {
+      expect(l.url).toMatch(/^https:\/\//)
+      expect(l.url).toContain('Stra%C3%9Fe')
+      expect(l.url).not.toContain(' ')
+    }
+  })
+
   it('renders a term without an article as-is', () => {
     const html = renderToStaticMarkup(
       createElement(de.Term, { card: { term: 'gehen', extra: {} } }),

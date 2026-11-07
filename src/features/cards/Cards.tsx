@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import LookupLinks from '../../app/LookupLinks.tsx'
 import { addCard, deleteCard, updateCard, type CardInput } from '../../db/cards.ts'
 import { db, type Card, type Deck } from '../../db/schema.ts'
 import { getLanguage } from '../../languages/index.ts'
@@ -68,6 +69,7 @@ export default function Cards() {
         <CardForm
           key={editing === 'new' ? 'new' : editing.id}
           fields={lang.extraFields}
+          lookupLinks={lang.lookupLinks}
           initial={editing === 'new' ? blank : editing}
           onSave={(input) => save(input, editing === 'new' ? null : editing)}
           onCancel={() => setEditing(null)}
@@ -105,12 +107,14 @@ export default function Cards() {
 
 function CardForm({
   fields,
+  lookupLinks,
   initial,
   onSave,
   onCancel,
   onDelete,
 }: {
   fields: ReturnType<typeof getLanguage>['extraFields']
+  lookupLinks: ReturnType<typeof getLanguage>['lookupLinks']
   initial: CardInput
   onSave: (input: CardInput) => Promise<void>
   onCancel: () => void
@@ -170,6 +174,7 @@ function CardForm({
           onChange={(e) => setV({ ...v, exampleTranslation: e.target.value })}
         />
       </label>
+      {v.term.trim() && <LookupLinks links={lookupLinks({ term: v.term })} />}
       <div className="card-form-actions">
         <button type="submit" className="primary">
           Save

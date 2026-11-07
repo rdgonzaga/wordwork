@@ -9,6 +9,11 @@ export interface ExtraField {
   options?: readonly string[]
 }
 
+export interface LookupLink {
+  label: string
+  url: string
+}
+
 export type TermCard = Pick<Card, 'term' | 'extra'>
 export type SearchCard = Pick<Card, 'term' | 'translation' | 'extra'>
 
@@ -33,8 +38,12 @@ export interface LanguageModule {
   extraFields: readonly ExtraField[]
   /** How a card's term is shown on the review screen and in lists. */
   Term: ComponentType<{ card: TermCard }>
+  /** BCP 47 tag for speech synthesis, e.g. `de-DE`. */
+  speechLang: string
   /** Lowercased text a card search matches against. */
   searchText(card: SearchCard): string
+  /** Dictionary pages for a term. */
+  lookupLinks(card: Pick<Card, 'term'>): LookupLink[]
   seed?: SeedDeck
 }
 
