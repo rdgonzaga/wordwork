@@ -1,0 +1,20 @@
+changelog:
+  exclude:
+    labels: [invalid, duplicate, wontfix]
+  categories:
+    - title: Bug Fixes
+      labels: [bug]
+    - title: Review and Cards
+      labels: [srs, cards, german]
+    - title: Daily Log
+      labels: [log, journal]
+    - title: Sync
+      labels: [sync]
+    - title: App and UI
+      labels: [ui, pwa, accessibility]
+    - title: Documentation
+      labels: [documentation]
+    - title: Maintenance
+      labels: [setup]
+    - title: Other Changes
+      labels: ['*']
