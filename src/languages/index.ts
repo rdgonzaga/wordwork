@@ -20,7 +20,7 @@ export type SearchCard = Pick<Card, 'term' | 'translation' | 'extra'>
 
 export type SeedCard = Pick<
   Card,
-  'term' | 'translation' | 'example' | 'exampleTranslation' | 'extra' | 'tags'
+  'term' | 'translation' | 'example' | 'exampleTranslation' | 'extra' | 'tags' | 'source'
 >
 
 export interface SeedDeck {

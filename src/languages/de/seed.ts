@@ -1,32 +1,8 @@
-import type { SeedCard, SeedDeck } from '../index.ts'
-import type { Article } from './articles.ts'
+import type { SeedDeck } from '../index.ts'
+import { group } from './build.ts'
+import { topicCards } from './topics.ts'
 
-function noun(
-  article: Article,
-  term: string,
-  plural: string | null,
-  translation: string,
-  example?: string,
-  exampleTranslation?: string,
-): SeedCard {
-  const extra: Record<string, string> = { article }
-  if (plural) extra.plural = plural
-  return { term, translation, example, exampleTranslation, extra, tags: ['A1', 'noun'] }
-}
-
-function word(
-  tag: 'verb' | 'word' | 'phrase',
-  term: string,
-  translation: string,
-  example?: string,
-  exampleTranslation?: string,
-): SeedCard {
-  return { term, translation, example, exampleTranslation, extra: {}, tags: ['A1', tag] }
-}
-
-const verb = word.bind(null, 'verb')
-const other = word.bind(null, 'word')
-const phrase = word.bind(null, 'phrase')
+const { noun, verb, other, phrase } = group()
 
 /** Common A1 words in learning order: greetings, people, home, food, getting around. */
 export const starterDeck: SeedDeck = {
@@ -194,5 +170,6 @@ export const starterDeck: SeedDeck = {
     other('morgen', 'tomorrow', 'Bis morgen!', 'See you tomorrow!'),
     other('hier', 'here', 'Ich wohne hier.', 'I live here.'),
     other('viel', 'much; a lot', 'Danke vielmals!', 'Thanks a lot!'),
+    ...topicCards,
   ],
 }
