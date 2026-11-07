@@ -64,6 +64,108 @@ describe('German module', () => {
   })
 })
 
+describe('Italian module', () => {
+  const it_ = getLanguage('it')
+
+  it('offers article and plural fields, with the elided article as a choice', () => {
+    expect(it_.extraFields.map((f) => f.key)).toEqual(['article', 'plural'])
+    expect(it_.extraFields[0].options).toContain("l'")
+  })
+
+  it('renders an article before the term, with no space after l’', () => {
+    const render = (article: string, term: string) =>
+      renderToStaticMarkup(createElement(it_.Term, { card: { term, extra: { article } } }))
+    expect(render('il', 'libro')).toContain('il libro')
+    // the apostrophe is HTML-escaped in the markup
+    expect(render("l'", 'amico')).toContain('l&#x27;amico')
+    expect(render('il', 'libro')).toContain('lang="it"')
+  })
+
+  it('speaks Italian and links WordReference, Wiktionary and Treccani', () => {
+    expect(it_.speechLang).toBe('it-IT')
+    const links = it_.lookupLinks({ term: ' città ' })
+    expect(links.map((l) => l.label)).toEqual(['WordReference', 'Wiktionary', 'Treccani'])
+    for (const l of links) expect(l.url).toContain('citt%C3%A0')
+  })
+
+  it('searches by article, term, plural and translation', () => {
+    const text = it_.searchText({
+      term: 'libro',
+      translation: 'book',
+      extra: { article: 'il', plural: 'libri' },
+    })
+    expect(text).toBe('il libro libri book')
+  })
+
+  it('has a starter deck of nouns that all carry an article', () => {
+    const nouns = it_.seed!.cards.filter((c) => c.tags.includes('noun'))
+    expect(nouns.length).toBeGreaterThan(10)
+    for (const c of nouns) expect(it_.extraFields[0].options, c.term).toContain(c.extra.article)
+  })
+})
+
+describe('Japanese module', () => {
+  const ja = getLanguage('ja')
+
+  it('has a reading field', () => {
+    expect(ja.extraFields.map((f) => f.key)).toEqual(['reading'])
+  })
+
+  it('renders furigana when a reading differs from the term', () => {
+    const html = renderToStaticMarkup(
+      createElement(ja.Term, { card: { term: '食べる', extra: { reading: 'たべる' } } }),
+    )
+    expect(html).toContain('lang="ja"')
+    expect(html).toContain('<ruby>食べる<rt>たべる</rt></ruby>')
+  })
+
+  it('renders plain kana without ruby', () => {
+    for (const extra of [{}, { reading: 'はい' }] as Record<string, string>[]) {
+      const html = renderToStaticMarkup(createElement(ja.Term, { card: { term: 'はい', extra } }))
+      expect(html).not.toContain('<ruby>')
+      expect(html).toContain('はい')
+    }
+  })
+
+  it('speaks Japanese and links Jisho and Wiktionary', () => {
+    expect(ja.speechLang).toBe('ja-JP')
+    const links = ja.lookupLinks({ term: '猫' })
+    expect(links.map((l) => l.label)).toEqual(['Jisho', 'Wiktionary'])
+    for (const l of links) expect(l.url).toContain('%E7%8C%AB')
+  })
+
+  it('searches by term, reading and translation', () => {
+    expect(ja.searchText({ term: '猫', translation: 'cat', extra: { reading: 'ねこ' } })).toBe(
+      '猫 ねこ cat',
+    )
+  })
+
+  it('has a starter deck with a reading on every kanji term', () => {
+    const kanji = /[一-鿿]/
+    const cards = ja.seed!.cards.filter((c) => kanji.test(c.term))
+    expect(cards.length).toBeGreaterThan(10)
+    for (const c of cards) expect(c.extra.reading, c.term).toBeTruthy()
+  })
+})
+
+describe('registry rules', () => {
+  it('registers each code once, each with a starter deck', () => {
+    const codes = languages.map((l) => l.code)
+    expect(new Set(codes).size).toBe(codes.length)
+    expect(codes).toEqual(['de', 'it', 'ja'])
+    for (const l of languages) expect(l.seed, l.code).toBeDefined()
+  })
+
+  it('keeps seed deck keys and card terms unique', () => {
+    const keys = languages.map((l) => l.seed!.key)
+    expect(new Set(keys).size).toBe(keys.length)
+    for (const l of languages) {
+      const terms = l.seed!.cards.map((c) => c.term)
+      expect(new Set(terms).size, l.code).toBe(terms.length)
+    }
+  })
+})
+
 describe('article rules stay in the German module', () => {
   const sources = import.meta.glob<string>('/src/**/*.{ts,tsx,css}', {
     query: '?raw',

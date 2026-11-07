@@ -6,6 +6,7 @@ import { seedStarterDecks } from './seed.ts'
 
 const now = new Date('2026-11-07T05:00:00Z')
 const deck = languages.find((l) => l.code === 'de')!.seed!
+const allCards = languages.reduce((n, l) => n + (l.seed?.cards.length ?? 0), 0)
 
 let db: WordworkDb
 let n = 0
@@ -42,9 +43,11 @@ describe('seedStarterDecks', () => {
     await seedStarterDecks(db, now)
 
     const decks = await db.decks.toArray()
-    expect(decks).toHaveLength(1)
-    expect(decks[0]).toMatchObject({ language: 'de', name: deck.name, deleted: false })
-    expect(await db.cards.where('deckId').equals(decks[0].id).count()).toBe(deck.cards.length)
+    expect(decks.map((d) => d.language).sort()).toEqual(languages.map((l) => l.code).sort())
+    const german = decks.find((d) => d.language === 'de')
+    expect(german).toMatchObject({ name: deck.name, deleted: false })
+    expect(await db.cards.where('deckId').equals(german!.id).count()).toBe(deck.cards.length)
+    expect(await db.cards.count()).toBe(allCards)
   })
 
   it('makes the same ids on every device', async () => {
@@ -92,10 +95,12 @@ describe('seedStarterDecks', () => {
     await seedStarterDecks(db, now)
     const [d] = await db.decks.toArray()
     await db.decks.update(d.id, { deleted: true })
-    await db.cards.clear()
+    await db.cards.where('deckId').equals(d.id).delete()
+    const others = await db.cards.count()
 
     await seedStarterDecks(db, now)
-    expect(await db.cards.count()).toBe(0)
+    expect(await db.cards.where('deckId').equals(d.id).count()).toBe(0)
+    expect(await db.cards.count()).toBe(others)
   })
 
   it('never brings back a deleted card', async () => {
@@ -105,7 +110,7 @@ describe('seedStarterDecks', () => {
 
     await seedStarterDecks(db, now)
     expect((await db.cards.get(card.id))!.deleted).toBe(true)
-    expect(await db.cards.count()).toBe(deck.cards.length)
+    expect(await db.cards.count()).toBe(allCards)
   })
 
   it('never overwrites an edited card', async () => {

@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import LanguagePicker from '../../app/LanguagePicker.tsx'
+import { useActiveLanguage } from '../../app/language.ts'
 import LookupLinks from '../../app/LookupLinks.tsx'
 import Speak from '../../app/Speak.tsx'
 import { addReviewTime, type ReviewClock } from '../../db/minutes.ts'
@@ -21,11 +23,12 @@ interface Done {
   cardId: string
 }
 
-async function firstDeck(): Promise<Deck | undefined> {
-  return (await db.decks.toArray()).find((d) => !d.deleted)
+async function firstDeck(language: string): Promise<Deck | undefined> {
+  return (await db.decks.toArray()).find((d) => !d.deleted && d.language === language)
 }
 
 export default function Review() {
+  const { active, loaded } = useActiveLanguage()
   const [deck, setDeck] = useState<Deck | null | undefined>(undefined)
   const [state, setState] = useState<StudyState | null>(null)
   const [revealed, setRevealed] = useState(false)
@@ -45,22 +48,25 @@ export default function Review() {
   }, [])
 
   useEffect(() => {
+    if (!loaded) return
+    if (!active) {
+      // Seeding runs at startup; give it a moment on a first launch before saying there's no deck.
+      const t = setTimeout(() => setDeck(null), 2000)
+      return () => clearTimeout(t)
+    }
     let live = true
     void (async () => {
-      // Seeding runs at startup; wait briefly for it on a first launch.
-      let d = await firstDeck()
-      for (let i = 0; !d && i < 20; i++) {
-        await new Promise((r) => setTimeout(r, 100))
-        d = await firstDeck()
-      }
+      const d = await firstDeck(active)
       if (!live) return
+      setState(null)
+      setDone([])
       setDeck(d ?? null)
       if (d) await load(d)
     })()
     return () => {
       live = false
     }
-  }, [load])
+  }, [active, loaded, load])
 
   // When only learning cards are waiting, check again for ones that have come due.
   const empty = state !== null && state.queue.length === 0
@@ -128,6 +134,7 @@ export default function Review() {
   return (
     <>
       <h1>Today</h1>
+      <LanguagePicker />
       <p className="muted review-meta">
         {deck.name} · {remaining} left
         <button

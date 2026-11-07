@@ -1,9 +1,22 @@
 import { useState } from 'react'
+import LanguagePicker from '../../app/LanguagePicker.tsx'
+import { useActiveLanguage } from '../../app/language.ts'
 import { applyTheme, getStoredTheme, type Theme } from '../../app/theme.ts'
 import Account from './Account.tsx'
 import DataTransfer from './DataTransfer.tsx'
 
 const options: Theme[] = ['system', 'light', 'dark']
+
+function LanguageSetting() {
+  const { available } = useActiveLanguage()
+  if (available.length < 2) return null
+  return (
+    <>
+      <h2>Language</h2>
+      <LanguagePicker />
+    </>
+  )
+}
 
 export default function Settings() {
   const [theme, setTheme] = useState<Theme>(getStoredTheme)
@@ -24,6 +37,7 @@ export default function Settings() {
           </button>
         ))}
       </div>
+      <LanguageSetting />
       <Account />
       <DataTransfer />
     </>

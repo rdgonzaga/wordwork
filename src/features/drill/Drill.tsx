@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'wouter'
+import LanguagePicker from '../../app/LanguagePicker.tsx'
+import { useActiveLanguage } from '../../app/language.ts'
 import { useLive } from '../../app/useLive.ts'
 import { db } from '../../db/schema.ts'
 import {
@@ -11,11 +13,10 @@ import {
 import { getLanguage } from '../../languages/index.ts'
 import './Drill.css'
 
-async function load() {
-  const decks = (await db.decks.toArray()).filter((d) => !d.deleted)
-  if (decks.length === 0) return { language: undefined, cards: [] }
-  const language = decks[0].language
-  const ids = new Set(decks.filter((d) => d.language === language).map((d) => d.id))
+async function load(language: string | undefined) {
+  if (!language) return { language, cards: [] }
+  const decks = (await db.decks.toArray()).filter((d) => !d.deleted && d.language === language)
+  const ids = new Set(decks.map((d) => d.id))
   const cards = (await db.cards.toArray()).filter((c) => !c.deleted && ids.has(c.deckId))
   return { language, cards }
 }
@@ -137,25 +138,32 @@ function Session({
 }
 
 export default function Drill() {
-  const data = useLive(load)
-  const [questions, setQuestions] = useState<Question[]>()
+  const { active } = useActiveLanguage()
+  const query = useCallback(() => load(active), [active])
+  const data = useLive(query)
+  const [built, setBuilt] = useState<{ language: string | undefined; questions: Question[] }>()
 
   if (!data) return <p className="muted">Loading…</p>
 
+  // A session built for another language doesn't carry over.
+  const questions = built?.language === data.language ? built?.questions : undefined
   const spec = data.language ? getLanguage(data.language).drill : undefined
   const available = spec ? buildQuestions(data.cards, spec, Infinity).length : 0
 
   return (
     <>
       <h1>Drill</h1>
-      {!spec || available === 0 ? (
+      <LanguagePicker />
+      {!spec ? (
+        <p className="muted">No drill for this language yet.</p>
+      ) : available === 0 ? (
         <p className="muted">
           No words to drill yet. Cards need an article set (add one in{' '}
           <Link href="/cards">Cards</Link>
           ).
         </p>
       ) : questions ? (
-        <Session title={spec.title} questions={questions} onExit={() => setQuestions(undefined)} />
+        <Session title={spec.title} questions={questions} onExit={() => setBuilt(undefined)} />
       ) : (
         <>
           <p className="muted">
@@ -165,7 +173,12 @@ export default function Drill() {
           <button
             type="button"
             className="primary"
-            onClick={() => setQuestions(buildQuestions(data.cards, spec, DEFAULT_DRILL_SIZE))}
+            onClick={() =>
+              setBuilt({
+                language: data.language,
+                questions: buildQuestions(data.cards, spec, DEFAULT_DRILL_SIZE),
+              })
+            }
           >
             Start
           </button>
