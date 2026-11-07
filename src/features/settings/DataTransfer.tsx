@@ -147,11 +147,12 @@ export default function DataTransfer() {
           <p className="muted">
             {mode === 'merge'
               ? 'Keeps whichever copy of each item was edited last. Nothing is removed.'
-              : 'Makes this device match the file. Anything not in the file is deleted, and that syncs to your other devices.'}
+              : 'Makes this device match the file. Anything not in the file is deleted, and that syncs to your other devices. Anything you added after the file was made is lost on all of them. Export a fresh backup first, and use Merge unless you want to roll back.'}
           </p>
           {confirm && (
             <p role="alert">
-              Replace everything on this device with the file? This can’t be undone.
+              Replace everything on this device and your other devices with the file? There is no
+              undo. Export a backup first.
             </p>
           )}
           <button type="button" disabled={busy} onClick={() => void apply()}>
