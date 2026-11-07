@@ -43,3 +43,17 @@ describe('cards', () => {
     expect(await db.cards.get(a.id)).toMatchObject({ deleted: true, dirty: 1 })
   })
 })
+
+describe('card source', () => {
+  it('stores a trimmed source, and clears it when emptied', async () => {
+    const card = await addCard(db, 'd', { ...base, source: '  Nicos Weg A1 · 12 ' }, now)
+    expect(card.source).toBe('Nicos Weg A1 · 12')
+
+    await updateCard(db, card.id, { ...base, source: '   ' }, new Date(now.getTime() + 1_000))
+    expect((await db.cards.get(card.id))?.source).toBeUndefined()
+  })
+
+  it('leaves the source off when none is given', async () => {
+    expect((await addCard(db, 'd', base, now)).source).toBeUndefined()
+  })
+})
