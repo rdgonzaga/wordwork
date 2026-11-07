@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { addReviewTime, type ReviewClock } from '../../db/minutes.ts'
 import { db, type Deck, type Rating } from '../../db/schema.ts'
 import { loadStudyState, rateCard, undoReview, type StudyState } from '../../db/srs.ts'
 import { previewAll } from '../../domain/srs/preview.ts'
@@ -28,6 +29,7 @@ export default function Review() {
   const [revealed, setRevealed] = useState(false)
   const [done, setDone] = useState<Done[]>([])
   const shownAt = useRef(0)
+  const clock = useRef<ReviewClock>(undefined)
 
   const load = useCallback(async (d: Deck, first?: string) => {
     const next = await loadStudyState(db, d.id, new Date())
@@ -74,6 +76,7 @@ export default function Review() {
       if (!deck || !card) return
       const ms = Math.round(performance.now() - shownAt.current)
       const { review } = await rateCard(db, card.id, rating, new Date(), ms)
+      clock.current = await addReviewTime(db, clock.current, ms, new Date())
       setDone((d) => [...d, { reviewId: review.id, cardId: card.id }])
       await load(deck)
     },

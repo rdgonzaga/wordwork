@@ -3,6 +3,7 @@ import { useHashLocation } from 'wouter/use-hash-location'
 import Layout from './app/Layout.tsx'
 import Page from './app/Page.tsx'
 import Cards from './features/cards/Cards.tsx'
+import Log from './features/log/Log.tsx'
 import Review from './features/review/Review.tsx'
 import Settings from './features/settings/Settings.tsx'
 
@@ -13,9 +14,7 @@ export default function App() {
         <Switch>
           <Route path="/" component={Review} />
           <Route path="/cards" component={Cards} />
-          <Route path="/log">
-            <Page title="Log" note="Minutes, progress and the heatmap." />
-          </Route>
+          <Route path="/log" component={Log} />
           <Route path="/journal">
             <Page title="Journal" note="Satz des Tages and song of the week." />
           </Route>

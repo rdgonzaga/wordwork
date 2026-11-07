@@ -1,0 +1,90 @@
+.log-total {
+  padding: var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-6);
+}
+
+.log-hours {
+  font-size: var(--text-xl);
+  margin: 0 0 var(--space-3);
+}
+
+.log-hours .muted {
+  font-size: var(--text-base);
+}
+
+.log-bar {
+  height: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: var(--space-3);
+}
+
+.log-bar > div {
+  height: 100%;
+  background: var(--accent);
+}
+
+.log-quick {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.log-quick button,
+.log-custom button {
+  min-height: 3rem;
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.log-custom button:disabled {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.log-custom {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+
+.log-custom label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.log-custom input {
+  min-height: 3rem;
+  padding: 0 var(--space-3);
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.log-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+}
