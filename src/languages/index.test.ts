@@ -82,3 +82,24 @@ describe('article rules stay in the German module', () => {
     expect(text).not.toMatch(/\b(der|die|das)\b/i)
   })
 })
+
+describe('german drill', () => {
+  const drill = de.drill!
+  const card = (extra: Record<string, string>) => ({
+    id: '1',
+    term: 'Hund',
+    translation: 'dog',
+    extra,
+  })
+
+  it('asks for the article', () => {
+    expect(drill.choices).toEqual(['der', 'die', 'das'])
+    expect(drill.answer(card({ article: 'der' }))).toBe('der')
+  })
+
+  it('skips cards with no usable article', () => {
+    expect(drill.answer(card({}))).toBeUndefined()
+    expect(drill.answer(card({ article: '' }))).toBeUndefined()
+    expect(drill.answer(card({ article: 'ein' }))).toBeUndefined()
+  })
+})
