@@ -9,6 +9,8 @@ import { auth } from './auth/index.ts'
 import { db } from './db/schema.ts'
 import { seedStarterDecks } from './db/seed.ts'
 import { requestPersistentStorage } from './storage.ts'
+import { syncNow } from './sync/index.ts'
+import { startSyncTriggers } from './sync/triggers.ts'
 
 applyTheme(getStoredTheme())
 
@@ -18,6 +20,14 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
+startSyncTriggers({
+  db,
+  sync: syncNow,
+  isSignedIn: () => auth.getState().status === 'signedIn',
+  onAuthChange: auth.subscribe,
+  win: window,
+  doc: document,
+})
 void auth.init()
 void requestPersistentStorage()
 void seedStarterDecks(db, new Date())
