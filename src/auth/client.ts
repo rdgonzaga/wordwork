@@ -31,6 +31,16 @@ export function getClient(): SupabaseClient | null {
   return client
 }
 
+export function readStoredUser(): { id: string; email: string } | null {
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY)
+    const user = raw ? (JSON.parse(raw) as { user?: { id?: string; email?: string } }).user : null
+    return user?.id ? { id: user.id, email: user.email ?? '' } : null
+  } catch {
+    return null
+  }
+}
+
 export function hasStoredSession(): boolean {
   try {
     return localStorage.getItem(AUTH_STORAGE_KEY) !== null

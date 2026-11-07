@@ -62,18 +62,18 @@ function SignIn() {
   return (
     <form className="account-form" onSubmit={verify}>
       <label>
-        6-digit code sent to {email}
+        Code sent to {email}
         <input
           inputMode="numeric"
           autoComplete="one-time-code"
-          pattern="[0-9]{6}"
-          maxLength={6}
+          pattern="[0-9]{6,10}"
+          maxLength={10}
           required
           value={code}
           onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
         />
       </label>
-      <button type="submit" disabled={busy || code.length !== 6}>
+      <button type="submit" disabled={busy || code.length < 6}>
         Sign in
       </button>
       <button
