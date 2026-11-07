@@ -1,5 +1,5 @@
 import type { LanguageModule } from '../index.ts'
-import { ARTICLES } from './articles.ts'
+import { ARTICLES, isArticle } from './articles.ts'
 import { starterDeck } from './seed.ts'
 import Term from './Term.tsx'
 
@@ -26,4 +26,9 @@ export const german: LanguageModule = {
       .join(' ')
       .toLowerCase(),
   seed: starterDeck,
+  drill: {
+    title: 'der / die / das',
+    choices: ARTICLES,
+    answer: (card) => (isArticle(card.extra.article) ? card.extra.article : undefined),
+  },
 }

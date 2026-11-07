@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import type { Card, LangCode } from '../db/schema.ts'
+import type { DrillSpec } from '../domain/drill.ts'
 import { german } from './de/index.ts'
 
 export interface ExtraField {
@@ -45,6 +46,8 @@ export interface LanguageModule {
   /** Dictionary pages for a term. */
   lookupLinks(card: Pick<Card, 'term'>): LookupLink[]
   seed?: SeedDeck
+  /** A multiple-choice drill over cards, e.g. German articles. Results never touch SRS. */
+  drill?: DrillSpec<Pick<Card, 'id' | 'term' | 'translation' | 'extra'>>
 }
 
 export const languages: readonly LanguageModule[] = [german]

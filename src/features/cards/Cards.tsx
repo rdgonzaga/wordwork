@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { Link } from 'wouter'
 import LookupLinks from '../../app/LookupLinks.tsx'
 import { addCard, deleteCard, updateCard, type CardInput } from '../../db/cards.ts'
 import { db, type Card, type Deck } from '../../db/schema.ts'
@@ -63,6 +64,12 @@ export default function Cards() {
       <h1>Cards</h1>
       <p className="muted">
         {deck.name} · {cards.length} cards
+        {lang.drill && (
+          <>
+            {' '}
+            · <Link href="/drill">{lang.drill.title} drill</Link>
+          </>
+        )}
       </p>
 
       {editing ? (
