@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { applyTheme, getStoredTheme, type Theme } from '../../app/theme.ts'
 import Account from './Account.tsx'
+import DataTransfer from './DataTransfer.tsx'
 
 const options: Theme[] = ['system', 'light', 'dark']
 
@@ -24,6 +25,7 @@ export default function Settings() {
         ))}
       </div>
       <Account />
+      <DataTransfer />
     </>
   )
 }
