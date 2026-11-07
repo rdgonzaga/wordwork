@@ -4,7 +4,7 @@ import { isSyncConfigured } from '../../auth/client.ts'
 
 type Step = 'email' | 'code'
 
-function SignIn() {
+function CodeSignIn() {
   const [step, setStep] = useState<Step>('email')
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
@@ -89,6 +89,71 @@ function SignIn() {
       </button>
       {error && <p role="alert">{error}</p>}
     </form>
+  )
+}
+
+function PasswordSignIn() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  async function submit(e: FormEvent) {
+    e.preventDefault()
+    setBusy(true)
+    setError('')
+    try {
+      await auth.signInWithPassword(email.trim(), password)
+    } catch {
+      setError('That email and password did not work.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <form className="account-form" onSubmit={(e) => void submit(e)}>
+      <label>
+        Email
+        <input
+          type="email"
+          autoComplete="username"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </label>
+      <label>
+        Password
+        <input
+          type="password"
+          autoComplete="current-password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </label>
+      <button type="submit" disabled={busy}>
+        Sign in
+      </button>
+      {error && <p role="alert">{error}</p>}
+    </form>
+  )
+}
+
+function SignIn() {
+  const [method, setMethod] = useState<'password' | 'code'>('password')
+  return (
+    <>
+      {method === 'password' ? <PasswordSignIn /> : <CodeSignIn />}
+      <button
+        type="button"
+        className="link"
+        onClick={() => setMethod(method === 'password' ? 'code' : 'password')}
+      >
+        {method === 'password' ? 'Email me a code instead' : 'Use a password instead'}
+      </button>
+    </>
   )
 }
 

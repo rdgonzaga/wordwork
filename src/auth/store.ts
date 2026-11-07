@@ -96,6 +96,17 @@ export function createAuthStore({ getClient, hasStoredSession, storedUser }: Aut
       set(toState(data.session))
     },
 
+    /** Email and password. Sign-ups are off, so this only works for an account made by hand. */
+    async signInWithPassword(email: string, password: string) {
+      const client = getClient()
+      if (!client) throw new Error('Sync is not set up.')
+      listen(client)
+      const { data, error } = await client.auth.signInWithPassword({ email, password })
+      if (error) throw error
+      if (!data.session) throw new Error('No session returned.')
+      set(toState(data.session))
+    },
+
     /** Local data stays on the device; only the session goes. */
     async signOut() {
       const client = getClient()

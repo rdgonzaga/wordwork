@@ -10,6 +10,7 @@ function fakeClient() {
   const auth = {
     getSession: vi.fn().mockResolvedValue({ data: { session }, error: null }),
     signInWithOtp: vi.fn().mockResolvedValue({ error: null }),
+    signInWithPassword: vi.fn().mockResolvedValue({ data: { session }, error: null }),
     verifyOtp: vi.fn().mockResolvedValue({ data: { session }, error: null }),
     signOut: vi.fn().mockResolvedValue({ error: null }),
     onAuthStateChange: vi.fn(),
@@ -170,5 +171,37 @@ describe('auth store', () => {
     expect(store.getState()).toEqual({ status: 'guest' })
     listener('TOKEN_REFRESHED', session)
     expect(store.getState().status).toBe('signedIn')
+  })
+})
+
+describe('password sign-in', () => {
+  it('signs in and notifies subscribers', async () => {
+    const { client, auth } = fakeClient()
+    const store = make(client, false, null)
+    const seen = vi.fn()
+    store.subscribe(seen)
+    await store.signInWithPassword('me@example.com', 'correct horse')
+    expect(auth.signInWithPassword).toHaveBeenCalledWith({
+      email: 'me@example.com',
+      password: 'correct horse',
+    })
+    expect(store.getState()).toEqual(signedIn)
+    expect(seen).toHaveBeenCalled()
+  })
+
+  it('stays a guest and throws on a wrong password', async () => {
+    const { client, auth } = fakeClient()
+    auth.signInWithPassword.mockResolvedValue({
+      data: { session: null },
+      error: new Error('Invalid login credentials'),
+    })
+    const store = make(client, false, null)
+    await expect(store.signInWithPassword('me@example.com', 'nope')).rejects.toThrow('Invalid')
+    expect(store.getState()).toEqual({ status: 'guest' })
+  })
+
+  it('throws when sync is not set up', async () => {
+    const store = make(null, false, null)
+    await expect(store.signInWithPassword('a@b.c', 'x')).rejects.toThrow('not set up')
   })
 })
