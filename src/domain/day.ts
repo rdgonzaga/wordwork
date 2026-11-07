@@ -41,3 +41,17 @@ export function toDay(now: Date, settings: DaySettings): DayKey {
 
   return date.toISOString().slice(0, 10)
 }
+
+const MS_PER_DAY = 86_400_000
+
+/** `day` shifted by `n` calendar days. */
+export function addDays(day: DayKey, n: number): DayKey {
+  const date = new Date(`${day}T00:00:00Z`)
+  date.setUTCDate(date.getUTCDate() + n)
+  return date.toISOString().slice(0, 10)
+}
+
+/** Whole days from `from` to `to`; negative if `to` is earlier. */
+export function daysBetween(from: DayKey, to: DayKey): number {
+  return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / MS_PER_DAY)
+}
