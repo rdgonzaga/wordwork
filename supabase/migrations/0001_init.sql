@@ -8,7 +8,8 @@
 --     device clock skew can't hide rows.
 --   * Last-write-wins on updated_at (stale writes are dropped silently).
 --   * No DELETE policy: removals are tombstones (deleted = true).
---   * Reviews are append-only: only `deleted` (undo) may change after insert.
+--   * Reviews are append-only: only `deleted` (undo) may change after insert;
+--     edits to other columns are silently reverted.
 
 create sequence public.ww_server_seq as bigint;
 
@@ -24,11 +25,28 @@ begin
   return new;
 end $$;
 
+-- Serialise a user's writes until commit, so seq order matches commit order
+-- and a pull cursor can't skip a row that committed late. Taken per statement,
+-- before any row locks, so two pushes can't deadlock (row lock vs advisory lock).
+-- Key class 1953 keeps these locks apart from other advisory-lock users.
+create function public.ww_lock_user() returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if auth.uid() is not null then
+    perform pg_advisory_xact_lock(1953, hashtext(auth.uid()::text));
+  end if;
+  return null;
+end $$;
+
 create function public.ww_stamp_seq() returns trigger
 language plpgsql
 set search_path = ''
 as $$
 begin
+  -- Re-entrant; covers callers with no auth.uid() (service role).
+  perform pg_advisory_xact_lock(1953, hashtext(new.user_id::text));
   new.server_seq := nextval('public.ww_server_seq');
   return new;
 end $$;
@@ -38,11 +56,16 @@ language plpgsql
 set search_path = ''
 as $$
 begin
-  if (new.card_id, new.rating, new.reviewed_at, new.day, new.duration_ms, new.device_id, new.user_id)
-     is distinct from
-     (old.card_id, old.rating, old.reviewed_at, old.day, old.duration_ms, old.device_id, old.user_id) then
-    raise exception 'reviews are append-only';
-  end if;
+  -- Quietly restore immutable columns rather than raising: one bad row
+  -- must not fail a whole batched push.
+  new.id          := old.id;
+  new.card_id     := old.card_id;
+  new.rating      := old.rating;
+  new.reviewed_at := old.reviewed_at;
+  new.day         := old.day;
+  new.duration_ms := old.duration_ms;
+  new.device_id   := old.device_id;
+  new.user_id     := old.user_id;
   return new;
 end $$;
 
@@ -69,7 +92,7 @@ create table public.cards (
   translation          text    not null,
   example              text,
   example_translation  text,
-  extra                jsonb   not null default '{}'::jsonb,
+  extra                jsonb   not null default '{}'::jsonb check (jsonb_typeof(extra) = 'object'),
   tags                 text[]  not null default '{}',
   source               text,
   new_order            integer not null,
@@ -118,7 +141,8 @@ create table public.diary (
   updated_at bigint  not null,
   deleted    boolean not null default false,
   server_seq bigint  not null,
-  primary key (user_id, id)
+  primary key (user_id, id),
+  check (id = day || ':' || language)
 );
 
 create table public.songs (
@@ -160,6 +184,9 @@ begin
   loop
     -- Fire order is alphabetical: guards (ww_1_*) run before the seq stamp (ww_2_*).
     execute format(
+      'create trigger ww_0_lock before insert or update on public.%I
+         for each statement execute function public.ww_lock_user()', t);
+    execute format(
       'create trigger ww_1_stale before update on public.%I
          for each row execute function public.ww_guard_stale()', t);
     execute format(
@@ -195,5 +222,5 @@ revoke all on sequence public.ww_server_seq from anon, authenticated;
 grant usage on sequence public.ww_server_seq to authenticated;
 
 -- Trigger functions aren't API surface; keep them out of PostgREST's RPC.
-revoke execute on function public.ww_guard_stale(), public.ww_stamp_seq(), public.ww_guard_review()
+revoke execute on function public.ww_guard_stale(), public.ww_lock_user(), public.ww_stamp_seq(), public.ww_guard_review()
   from public, anon, authenticated;
