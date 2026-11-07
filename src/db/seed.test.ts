@@ -19,9 +19,15 @@ afterEach(async () => {
 })
 
 describe('German starter deck', () => {
-  it('has around 90 cards with unique terms', () => {
-    expect(deck.cards.length).toBeGreaterThanOrEqual(85)
+  it('has the starter words plus the A1 topics, with unique terms', () => {
+    expect(deck.cards.length).toBeGreaterThanOrEqual(300)
     expect(new Set(deck.cards.map((c) => c.term)).size).toBe(deck.cards.length)
+  })
+
+  it('files every card under a lesson', () => {
+    for (const c of deck.cards) expect(c.source ?? deck.source, c.term).toBeTruthy()
+    const topics = new Set(deck.cards.map((c) => c.source).filter(Boolean))
+    expect(topics.size).toBeGreaterThanOrEqual(10)
   })
 
   it('gives every noun an article', () => {
@@ -65,7 +71,24 @@ describe('seedStarterDecks', () => {
     expect(card).toMatchObject({ dirty: 0, updatedAt: 0, createdAt: now.getTime() })
   })
 
-  it('does nothing once any deck exists, even a deleted one', async () => {
+  it('tags each card with its topic, falling back to the deck source', async () => {
+    await seedStarterDecks(db, now)
+    const sources = new Set((await db.cards.toArray()).map((c) => c.source))
+    expect(sources).toContain(deck.source)
+    expect(sources).toContain('A1 · Verbs')
+  })
+
+  it('adds cards that an older release did not have', async () => {
+    await seedStarterDecks(db, now)
+    const all = await db.cards.toArray()
+    const missing = all.slice(-40)
+    await db.cards.bulkDelete(missing.map((c) => c.id))
+
+    await seedStarterDecks(db, now)
+    expect(await db.cards.count()).toBe(all.length)
+  })
+
+  it('never brings back a deleted deck or its cards', async () => {
     await seedStarterDecks(db, now)
     const [d] = await db.decks.toArray()
     await db.decks.update(d.id, { deleted: true })
@@ -73,5 +96,28 @@ describe('seedStarterDecks', () => {
 
     await seedStarterDecks(db, now)
     expect(await db.cards.count()).toBe(0)
+  })
+
+  it('never brings back a deleted card', async () => {
+    await seedStarterDecks(db, now)
+    const [card] = await db.cards.toArray()
+    await db.cards.update(card.id, { deleted: true })
+
+    await seedStarterDecks(db, now)
+    expect((await db.cards.get(card.id))!.deleted).toBe(true)
+    expect(await db.cards.count()).toBe(deck.cards.length)
+  })
+
+  it('never overwrites an edited card', async () => {
+    await seedStarterDecks(db, now)
+    const [card] = await db.cards.toArray()
+    await db.cards.update(card.id, { translation: 'edited', updatedAt: 5, dirty: 1 })
+
+    await seedStarterDecks(db, now)
+    expect(await db.cards.get(card.id)).toMatchObject({
+      translation: 'edited',
+      updatedAt: 5,
+      dirty: 1,
+    })
   })
 })

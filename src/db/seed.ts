@@ -14,9 +14,9 @@ export async function nameUuid(name: string): Promise<string> {
 }
 
 /**
- * Seeds each language's starter deck if the database has no decks at all (deleted ones count,
- * so a removed starter deck stays removed). Seeded rows have `updatedAt: 0` and `dirty: 0`:
- * every device seeds its own copy, and any real edit wins last-write-wins.
+ * Seeds each language's starter deck and tops it up with cards added in later releases.
+ * A deck or card the user deleted stays deleted. Seeded rows have `updatedAt: 0` and
+ * `dirty: 0`: every device seeds its own copy, and any real edit wins last-write-wins.
  */
 export async function seedStarterDecks(db: WordworkDb, now: Date): Promise<void> {
   const decks: Deck[] = []
@@ -42,7 +42,7 @@ export async function seedStarterDecks(db: WordworkDb, now: Date): Promise<void>
         ...c,
         id: await nameUuid(`card:${key}:${c.term}`),
         deckId,
-        source,
+        source: c.source ?? source,
         newOrder: i,
         suspended: false,
         createdAt,
@@ -54,11 +54,13 @@ export async function seedStarterDecks(db: WordworkDb, now: Date): Promise<void>
   }
 
   await db.transaction('rw', db.decks, db.cards, async () => {
-    if ((await db.decks.count()) > 0) return
-    // A sync may already have pulled (edited) starter rows. Never overwrite those.
+    // Deletes are tombstones, so a row that exists locally (deleted or edited, or pulled by a
+    // sync) is never put back. Only rows this device has never seen are added.
     const haveDeck = await db.decks.bulkGet(decks.map((d) => d.id))
-    const haveCard = await db.cards.bulkGet(cards.map((c) => c.id))
+    const removed = new Set(decks.filter((_, i) => haveDeck[i]?.deleted).map((d) => d.id))
+    const wanted = cards.filter((c) => !removed.has(c.deckId))
+    const haveCard = await db.cards.bulkGet(wanted.map((c) => c.id))
     await db.decks.bulkPut(decks.filter((_, i) => !haveDeck[i]))
-    await db.cards.bulkPut(cards.filter((_, i) => !haveCard[i]))
+    await db.cards.bulkPut(wanted.filter((_, i) => !haveCard[i]))
   })
 }
