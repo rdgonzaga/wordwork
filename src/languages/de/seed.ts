@@ -1,0 +1,198 @@
+import type { SeedCard, SeedDeck } from '../index.ts'
+import type { Article } from './articles.ts'
+
+function noun(
+  article: Article,
+  term: string,
+  plural: string | null,
+  translation: string,
+  example?: string,
+  exampleTranslation?: string,
+): SeedCard {
+  const extra: Record<string, string> = { article }
+  if (plural) extra.plural = plural
+  return { term, translation, example, exampleTranslation, extra, tags: ['A1', 'noun'] }
+}
+
+function word(
+  tag: 'verb' | 'word' | 'phrase',
+  term: string,
+  translation: string,
+  example?: string,
+  exampleTranslation?: string,
+): SeedCard {
+  return { term, translation, example, exampleTranslation, extra: {}, tags: ['A1', tag] }
+}
+
+const verb = word.bind(null, 'verb')
+const other = word.bind(null, 'word')
+const phrase = word.bind(null, 'phrase')
+
+/** Common A1 words in learning order: greetings, people, home, food, getting around. */
+export const starterDeck: SeedDeck = {
+  key: 'de-a1-starter',
+  name: 'German A1 starter',
+  source: 'Starter A1',
+  cards: [
+    phrase('Hallo', 'hello'),
+    phrase('Guten Morgen', 'good morning'),
+    phrase('Guten Tag', 'good day; hello'),
+    phrase('Tschüss', 'bye'),
+    phrase('Danke', 'thank you', 'Danke schön!', 'Thank you very much!'),
+    phrase('Bitte', "please; you're welcome", 'Einen Kaffee, bitte.', 'A coffee, please.'),
+    phrase('Entschuldigung', 'excuse me; sorry'),
+    phrase('Wie geht’s?', 'How are you?'),
+    phrase('Mir geht’s gut.', "I'm fine."),
+    other('ja', 'yes'),
+    other('nein', 'no'),
+    phrase('Ich weiß nicht.', "I don't know."),
+    phrase('Noch einmal, bitte.', 'Once more, please.'),
+    phrase('Wie viel kostet das?', 'How much does that cost?'),
+
+    verb('sein', 'to be', 'Ich bin müde.', "I'm tired."),
+    verb('haben', 'to have', 'Ich habe eine Katze.', 'I have a cat.'),
+    verb('heißen', 'to be called', 'Wie heißt du?', "What's your name?"),
+    verb('wohnen', 'to live (reside)', 'Ich wohne in Manila.', 'I live in Manila.'),
+    verb('kommen', 'to come', 'Woher kommst du?', 'Where are you from?'),
+    verb('gehen', 'to go', 'Wir gehen nach Hause.', "We're going home."),
+    verb('machen', 'to do; to make', 'Was machst du?', 'What are you doing?'),
+    verb('lernen', 'to learn', 'Ich lerne Deutsch.', "I'm learning German."),
+    verb('sprechen', 'to speak', 'Sprichst du Englisch?', 'Do you speak English?'),
+    verb('verstehen', 'to understand', 'Ich verstehe das nicht.', "I don't understand that."),
+    verb('arbeiten', 'to work', 'Sie arbeitet in Berlin.', 'She works in Berlin.'),
+    verb('essen', 'to eat', 'Wir essen um sieben.', 'We eat at seven.'),
+    verb('trinken', 'to drink', 'Ich trinke Kaffee.', 'I drink coffee.'),
+    verb('schlafen', 'to sleep', 'Das Baby schläft.', 'The baby is sleeping.'),
+    verb('lesen', 'to read', 'Er liest ein Buch.', "He's reading a book."),
+    verb('schreiben', 'to write', 'Ich schreibe eine E-Mail.', "I'm writing an email."),
+    verb('hören', 'to hear; to listen', 'Ich höre Musik.', "I'm listening to music."),
+    verb('sehen', 'to see', 'Siehst du den Bus?', 'Do you see the bus?'),
+    verb('kaufen', 'to buy', 'Ich kaufe Brot.', "I'm buying bread."),
+    verb('brauchen', 'to need', 'Ich brauche Hilfe.', 'I need help.'),
+    verb('möchten', 'would like', 'Ich möchte einen Tee.', "I'd like a tea."),
+    verb('können', 'can; to be able to', 'Kannst du mir helfen?', 'Can you help me?'),
+    verb('fahren', 'to drive; to go (by vehicle)', 'Ich fahre mit dem Zug.', "I'm going by train."),
+    verb('spielen', 'to play', 'Die Kinder spielen draußen.', 'The children are playing outside.'),
+
+    noun('der', 'Mann', 'Männer', 'man', 'Der Mann ist groß.', 'The man is tall.'),
+    noun('die', 'Frau', 'Frauen', 'woman', 'Die Frau liest.', 'The woman is reading.'),
+    noun('das', 'Kind', 'Kinder', 'child', 'Das Kind schläft.', 'The child is sleeping.'),
+    noun('die', 'Familie', 'Familien', 'family', 'Meine Familie ist groß.', 'My family is big.'),
+    noun('der', 'Vater', 'Väter', 'father', 'Mein Vater arbeitet viel.', 'My father works a lot.'),
+    noun('die', 'Mutter', 'Mütter', 'mother', 'Meine Mutter kocht.', 'My mother is cooking.'),
+    noun('der', 'Bruder', 'Brüder', 'brother', 'Ich habe einen Bruder.', 'I have a brother.'),
+    noun(
+      'die',
+      'Schwester',
+      'Schwestern',
+      'sister',
+      'Meine Schwester ist alt.',
+      'My sister is old.',
+    ),
+    noun('der', 'Freund', 'Freunde', 'friend (male)', 'Das ist mein Freund.', "That's my friend."),
+    noun(
+      'die',
+      'Freundin',
+      'Freundinnen',
+      'friend (female)',
+      'Sie ist meine Freundin.',
+      "She's my friend.",
+    ),
+    noun('der', 'Name', 'Namen', 'name', 'Mein Name ist Anna.', 'My name is Anna.'),
+
+    noun('das', 'Haus', 'Häuser', 'house', 'Das Haus ist neu.', 'The house is new.'),
+    noun(
+      'die',
+      'Wohnung',
+      'Wohnungen',
+      'apartment',
+      'Die Wohnung ist klein.',
+      'The apartment is small.',
+    ),
+    noun('das', 'Zimmer', 'Zimmer', 'room', 'Das Zimmer ist schön.', 'The room is nice.'),
+    noun('die', 'Küche', 'Küchen', 'kitchen', 'Die Küche ist hier.', 'The kitchen is here.'),
+    noun(
+      'der',
+      'Tisch',
+      'Tische',
+      'table',
+      'Das Buch liegt auf dem Tisch.',
+      'The book is on the table.',
+    ),
+    noun('der', 'Stuhl', 'Stühle', 'chair', 'Der Stuhl ist alt.', 'The chair is old.'),
+    noun('das', 'Bett', 'Betten', 'bed', 'Ich gehe ins Bett.', "I'm going to bed."),
+    noun('die', 'Tür', 'Türen', 'door', 'Die Tür ist offen.', 'The door is open.'),
+    noun('das', 'Fenster', 'Fenster', 'window', 'Das Fenster ist zu.', 'The window is closed.'),
+
+    noun('das', 'Wasser', null, 'water', 'Ein Glas Wasser, bitte.', 'A glass of water, please.'),
+    noun('der', 'Kaffee', 'Kaffees', 'coffee', 'Der Kaffee ist heiß.', 'The coffee is hot.'),
+    noun('der', 'Tee', 'Tees', 'tea', 'Ich trinke gern Tee.', 'I like drinking tea.'),
+    noun('das', 'Brot', 'Brote', 'bread', 'Das Brot ist frisch.', 'The bread is fresh.'),
+    noun('die', 'Milch', null, 'milk', 'Die Milch ist kalt.', 'The milk is cold.'),
+    noun('der', 'Apfel', 'Äpfel', 'apple', 'Der Apfel ist rot.', 'The apple is red.'),
+    noun('das', 'Essen', null, 'food; meal', 'Das Essen ist gut.', 'The food is good.'),
+
+    noun('die', 'Stadt', 'Städte', 'city', 'Die Stadt ist groß.', 'The city is big.'),
+    noun('die', 'Straße', 'Straßen', 'street', 'Die Straße ist lang.', 'The street is long.'),
+    noun(
+      'der',
+      'Bahnhof',
+      'Bahnhöfe',
+      'train station',
+      'Wo ist der Bahnhof?',
+      'Where is the train station?',
+    ),
+    noun('der', 'Zug', 'Züge', 'train', 'Der Zug kommt.', 'The train is coming.'),
+    noun('das', 'Auto', 'Autos', 'car', 'Das Auto ist neu.', 'The car is new.'),
+    noun('der', 'Bus', 'Busse', 'bus', 'Der Bus ist voll.', 'The bus is full.'),
+    noun(
+      'die',
+      'Schule',
+      'Schulen',
+      'school',
+      'Die Schule beginnt um acht.',
+      'School starts at eight.',
+    ),
+    noun(
+      'die',
+      'Arbeit',
+      'Arbeiten',
+      'work; job',
+      'Die Arbeit ist interessant.',
+      'The work is interesting.',
+    ),
+
+    noun('der', 'Tag', 'Tage', 'day', 'Der Tag ist schön.', 'The day is nice.'),
+    noun('die', 'Woche', 'Wochen', 'week', 'Die Woche ist lang.', 'The week is long.'),
+    noun('das', 'Jahr', 'Jahre', 'year', 'Das Jahr ist fast vorbei.', 'The year is almost over.'),
+    noun('die', 'Zeit', 'Zeiten', 'time', 'Ich habe keine Zeit.', "I don't have time."),
+    noun('die', 'Uhr', 'Uhren', "clock; o'clock", 'Es ist drei Uhr.', "It's three o'clock."),
+
+    noun('das', 'Buch', 'Bücher', 'book', 'Das Buch ist gut.', 'The book is good.'),
+    noun('das', 'Handy', 'Handys', 'mobile phone', 'Wo ist mein Handy?', 'Where is my phone?'),
+    noun(
+      'die',
+      'Sprache',
+      'Sprachen',
+      'language',
+      'Deutsch ist eine schöne Sprache.',
+      'German is a beautiful language.',
+    ),
+    noun('das', 'Wort', 'Wörter', 'word', 'Das Wort ist neu.', 'The word is new.'),
+    noun('die', 'Frage', 'Fragen', 'question', 'Ich habe eine Frage.', 'I have a question.'),
+    noun('das', 'Geld', null, 'money', 'Ich habe kein Geld.', "I don't have any money."),
+    noun('der', 'Hund', 'Hunde', 'dog', 'Der Hund spielt.', 'The dog is playing.'),
+    noun('die', 'Katze', 'Katzen', 'cat', 'Die Katze schläft.', 'The cat is sleeping.'),
+
+    other('gut', 'good', 'Das ist gut.', "That's good."),
+    other('groß', 'big; tall', 'Berlin ist groß.', 'Berlin is big.'),
+    other('klein', 'small', 'Das Zimmer ist klein.', 'The room is small.'),
+    other('neu', 'new', 'Das Handy ist neu.', 'The phone is new.'),
+    other('alt', 'old', 'Wie alt bist du?', 'How old are you?'),
+    other('schön', 'beautiful; nice', 'Das Wetter ist schön.', 'The weather is nice.'),
+    other('heute', 'today', 'Heute lerne ich Deutsch.', "Today I'm learning German."),
+    other('morgen', 'tomorrow', 'Bis morgen!', 'See you tomorrow!'),
+    other('hier', 'here', 'Ich wohne hier.', 'I live here.'),
+    other('viel', 'much; a lot', 'Danke vielmals!', 'Thanks a lot!'),
+  ],
+}

@@ -1,0 +1,35 @@
+:root {
+  --de-der: #1f5fae;
+  --de-die: #b3312f;
+  --de-das: #2f7d3f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --de-der: #7fb0f0;
+    --de-die: #f08a86;
+    --de-das: #7fcf8f;
+  }
+}
+
+:root[data-theme='dark'] {
+  --de-der: #7fb0f0;
+  --de-die: #f08a86;
+  --de-das: #7fcf8f;
+}
+
+.de-article {
+  font-weight: 600;
+}
+
+.de-article--der {
+  color: var(--de-der);
+}
+
+.de-article--die {
+  color: var(--de-die);
+}
+
+.de-article--das {
+  color: var(--de-das);
+}
