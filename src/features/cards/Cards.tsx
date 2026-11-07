@@ -3,6 +3,7 @@ import { Link } from 'wouter'
 import LookupLinks from '../../app/LookupLinks.tsx'
 import { addCard, deleteCard, updateCard, type CardInput } from '../../db/cards.ts'
 import { db, type Card, type Deck } from '../../db/schema.ts'
+import { filterBySource, lessonSources } from '../../domain/lessons.ts'
 import { getLanguage } from '../../languages/index.ts'
 import './Cards.css'
 
@@ -12,6 +13,7 @@ export default function Cards() {
   const [deck, setDeck] = useState<Deck | null | undefined>(undefined)
   const [cards, setCards] = useState<Card[]>([])
   const [query, setQuery] = useState('')
+  const [source, setSource] = useState('')
   // null = closed, 'new' = adding, otherwise the card being edited
   const [editing, setEditing] = useState<Card | 'new' | null>(null)
 
@@ -43,7 +45,9 @@ export default function Cards() {
   const lang = getLanguage(deck.language)
   const Term = lang.Term
   const q = query.trim().toLowerCase()
-  const shown = q ? cards.filter((c) => lang.searchText(c).includes(q)) : cards
+  const sources = lessonSources(cards)
+  const inSource = filterBySource(cards, source)
+  const shown = q ? inSource.filter((c) => lang.searchText(c).includes(q)) : inSource
 
   async function save(input: CardInput, existing: Card | null) {
     if (!deck) return
@@ -77,7 +81,7 @@ export default function Cards() {
           key={editing === 'new' ? 'new' : editing.id}
           fields={lang.extraFields}
           lookupLinks={lang.lookupLinks}
-          initial={editing === 'new' ? blank : editing}
+          initial={editing === 'new' ? { ...blank, source: source || undefined } : editing}
           onSave={(input) => save(input, editing === 'new' ? null : editing)}
           onCancel={() => setEditing(null)}
           onDelete={editing === 'new' ? undefined : () => remove(editing)}
@@ -91,6 +95,18 @@ export default function Cards() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
+          {sources.length > 0 && (
+            <select
+              aria-label="Lesson"
+              value={sources.includes(source) ? source : ''}
+              onChange={(e) => setSource(e.target.value)}
+            >
+              <option value="">All lessons</option>
+              {sources.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          )}
           <button type="button" className="primary" onClick={() => setEditing('new')}>
             Add card
           </button>
@@ -168,6 +184,14 @@ function CardForm({
           value={v.translation}
           onChange={(e) => setV({ ...v, translation: e.target.value })}
           required
+        />
+      </label>
+      <label>
+        Lesson or source
+        <input
+          value={v.source ?? ''}
+          onChange={(e) => setV({ ...v, source: e.target.value })}
+          placeholder="Nicos Weg A1 · 12"
         />
       </label>
       <label>

@@ -3,7 +3,7 @@ import { stamp } from './stamp.ts'
 
 export type CardInput = Pick<
   Card,
-  'term' | 'translation' | 'example' | 'exampleTranslation' | 'extra' | 'tags'
+  'term' | 'translation' | 'example' | 'exampleTranslation' | 'extra' | 'tags' | 'source'
 >
 
 /** Drops empty extra fields so blank selects don't get stored. */
@@ -15,6 +15,7 @@ function clean(input: CardInput): CardInput {
     translation: input.translation.trim(),
     example: input.example?.trim() || undefined,
     exampleTranslation: input.exampleTranslation?.trim() || undefined,
+    source: input.source?.trim() || undefined,
     extra,
   }
 }
