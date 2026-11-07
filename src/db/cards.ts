@@ -1,4 +1,5 @@
 import type { Card, WordworkDb } from './schema.ts'
+import { stamp } from './stamp.ts'
 
 export type CardInput = Pick<
   Card,
@@ -51,10 +52,24 @@ export async function updateCard(
   input: CardInput,
   now: Date,
 ): Promise<void> {
-  await db.cards.update(id, { ...clean(input), updatedAt: now.getTime(), dirty: 1 })
+  await db.transaction('rw', db.cards, async () => {
+    const card = await db.cards.get(id)
+    if (card) {
+      await db.cards.update(id, {
+        ...clean(input),
+        updatedAt: stamp(card.updatedAt, now),
+        dirty: 1,
+      })
+    }
+  })
 }
 
 /** Tombstone, so the deletion can sync. Review history stays. */
 export async function deleteCard(db: WordworkDb, id: string, now: Date): Promise<void> {
-  await db.cards.update(id, { deleted: true, updatedAt: now.getTime(), dirty: 1 })
+  await db.transaction('rw', db.cards, async () => {
+    const card = await db.cards.get(id)
+    if (card) {
+      await db.cards.update(id, { deleted: true, updatedAt: stamp(card.updatedAt, now), dirty: 1 })
+    }
+  })
 }

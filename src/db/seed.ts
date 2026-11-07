@@ -55,7 +55,10 @@ export async function seedStarterDecks(db: WordworkDb, now: Date): Promise<void>
 
   await db.transaction('rw', db.decks, db.cards, async () => {
     if ((await db.decks.count()) > 0) return
-    await db.decks.bulkPut(decks)
-    await db.cards.bulkPut(cards)
+    // A sync may already have pulled (edited) starter rows. Never overwrite those.
+    const haveDeck = await db.decks.bulkGet(decks.map((d) => d.id))
+    const haveCard = await db.cards.bulkGet(cards.map((c) => c.id))
+    await db.decks.bulkPut(decks.filter((_, i) => !haveDeck[i]))
+    await db.cards.bulkPut(cards.filter((_, i) => !haveCard[i]))
   })
 }
