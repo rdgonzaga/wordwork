@@ -1,4 +1,4 @@
-import { toDay } from '../domain/day.ts'
+import { toDay, type DaySettings } from '../domain/day.ts'
 import { buildQueue, countToday, type QueueItem } from '../domain/srs/queue.ts'
 import { newSchedule, replay, schedule } from '../domain/srs/scheduler.ts'
 import { getSyncMeta } from './meta.ts'
@@ -82,14 +82,18 @@ export async function rateCard(
 }
 
 /** Refreshes the cached schedule of each card from its reviews. Used after a pull changes the log. */
-export async function rebuildSchedules(db: WordworkDb, cardIds: Iterable<string>): Promise<void> {
+export async function rebuildSchedules(
+  db: WordworkDb,
+  cardIds: Iterable<string>,
+  settings?: DaySettings,
+): Promise<void> {
   const ids = [...new Set(cardIds)]
   if (ids.length === 0) return
-  const settings = await getSettings(db)
+  const day = settings ?? (await getSettings(db))
   await db.transaction('rw', db.reviews, db.schedules, async () => {
     for (const id of ids) {
       const reviews = await db.reviews.where('cardId').equals(id).toArray()
-      if (reviews.some((r) => !r.deleted)) await db.schedules.put(replay(id, reviews, settings))
+      if (reviews.some((r) => !r.deleted)) await db.schedules.put(replay(id, reviews, day))
       else await db.schedules.delete(id)
     }
   })

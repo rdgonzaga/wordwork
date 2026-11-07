@@ -1,5 +1,6 @@
 import { getSyncMeta } from '../db/meta.ts'
 import { SYNC_TABLES, type Review, type SyncTable, type WordworkDb } from '../db/schema.ts'
+import { getSettings } from '../db/settings.ts'
 import { rebuildSchedules } from '../db/srs.ts'
 import { mappings, type Row } from './mapping.ts'
 import { RemoteError, type Remote } from './remote.ts'
@@ -48,9 +49,7 @@ export async function runSync(db: WordworkDb, remote: Remote, userId: string): P
 
   const result: SyncResult = { pushed: 0, pulled: 0, failed: [] }
   for (const table of SYNC_TABLES) await push(db, remote, table, result)
-  const touchedCards = new Set<string>()
-  for (const table of SYNC_TABLES) await pull(db, remote, table, result, touchedCards)
-  await rebuildSchedules(db, touchedCards)
+  for (const table of SYNC_TABLES) await pull(db, remote, table, result)
   return result
 }
 
@@ -114,13 +113,7 @@ function shouldApply(table: SyncTable, local: LocalRow | undefined, remoteUpdate
   return table === 'reviews' && remoteUpdatedAt === local.updatedAt
 }
 
-async function pull(
-  db: WordworkDb,
-  remote: Remote,
-  table: SyncTable,
-  result: SyncResult,
-  touchedCards: Set<string>,
-) {
+async function pull(db: WordworkDb, remote: Remote, table: SyncTable, result: SyncResult) {
   const { fromRow } = mappings[table]
   let after = (await getSyncMeta(db)).cursors[table] ?? 0
 
@@ -132,7 +125,8 @@ async function pull(
     if (seqs.some((s) => !Number.isFinite(s))) throw new Error(`Bad server_seq from ${table}`)
     const high = Math.max(...seqs)
 
-    await db.transaction('rw', db.table(table), db.syncMeta, async () => {
+    const settings = table === 'reviews' ? await getSettings(db) : undefined
+    await db.transaction('rw', db.table(table), db.syncMeta, db.schedules, async () => {
       const t = db.table<LocalRow, string>(table)
       const apply: LocalRow[] = []
       for (const row of page) {
@@ -142,8 +136,9 @@ async function pull(
       }
       await t.bulkPut(apply)
       result.pulled += apply.length
-      if (table === 'reviews') {
-        for (const r of apply) touchedCards.add((r as unknown as Review).cardId)
+      if (settings) {
+        const cards = apply.map((r) => (r as unknown as Review).cardId)
+        await rebuildSchedules(db, cards, settings)
       }
 
       // Same transaction as the rows, so a crash can't advance the cursor past unsaved data.

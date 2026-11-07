@@ -7,6 +7,7 @@ import { rateCard, undoReview } from '../db/srs.ts'
 import { replay } from '../domain/srs/scheduler.ts'
 import { runSync } from './engine.ts'
 import { FakeServer } from './fakeServer.ts'
+import type { Remote } from './remote.ts'
 
 const USER = 'user-1'
 const t0 = new Date('2026-11-07T05:00:00Z')
@@ -117,6 +118,23 @@ describe('two devices reviewing offline', () => {
     await sync(a)
     await sync(b)
     expect(await cached(b, card.id)).toBeUndefined()
+  })
+
+  it('keep the cache right when a sync dies after the reviews page', async () => {
+    const a = device()
+    const b = device()
+    const card = await addCard(a, 'deck-1', input, t0)
+    await rateCard(a, card.id, 4, at(1000), 900)
+    await sync(a)
+
+    const dropsMinutes: Remote = {
+      upsert: (t, rows) => server.upsert(t, rows),
+      pull: (t, after, limit) =>
+        t === 'minutes' ? Promise.reject(new Error('offline')) : server.pull(t, after, limit),
+    }
+    await expect(runSync(b, dropsMinutes, USER)).rejects.toThrow('offline')
+    expect(await cached(b, card.id)).toEqual(await expected(b, card.id))
+    expect((await cached(b, card.id))?.state).toBe('review')
   })
 
   it('end up identical whatever the review pattern and sync order (seeded)', async () => {
