@@ -20,7 +20,7 @@ npm run build
 Optional. Without it the app runs fully offline in guest mode.
 
 1. Create a Supabase project.
-2. Authentication > Sign In / Providers: turn **off** "Allow new users to sign up".
+2. Authentication > Sign In / Providers: turn **off** "Allow new users to sign up". Also check "Allow anonymous sign-ins" is off (it's a separate switch); anonymous users get the `authenticated` role and would pass RLS as themselves.
 3. Authentication > Users: add your own user by hand (Add user > Create new user).
 4. SQL editor: run `supabase/migrations/0001_init.sql`.
 5. Copy `.env.example` to `.env.local` and fill in the project URL and anon key (Project Settings > API).
