@@ -1,5 +1,6 @@
 import { getSyncMeta } from '../db/meta.ts'
-import { SYNC_TABLES, type SyncTable, type WordworkDb } from '../db/schema.ts'
+import { SYNC_TABLES, type Review, type SyncTable, type WordworkDb } from '../db/schema.ts'
+import { rebuildSchedules } from '../db/srs.ts'
 import { mappings, type Row } from './mapping.ts'
 import { RemoteError, type Remote } from './remote.ts'
 
@@ -47,7 +48,9 @@ export async function runSync(db: WordworkDb, remote: Remote, userId: string): P
 
   const result: SyncResult = { pushed: 0, pulled: 0, failed: [] }
   for (const table of SYNC_TABLES) await push(db, remote, table, result)
-  for (const table of SYNC_TABLES) await pull(db, remote, table, result)
+  const touchedCards = new Set<string>()
+  for (const table of SYNC_TABLES) await pull(db, remote, table, result, touchedCards)
+  await rebuildSchedules(db, touchedCards)
   return result
 }
 
@@ -111,7 +114,13 @@ function shouldApply(table: SyncTable, local: LocalRow | undefined, remoteUpdate
   return table === 'reviews' && remoteUpdatedAt === local.updatedAt
 }
 
-async function pull(db: WordworkDb, remote: Remote, table: SyncTable, result: SyncResult) {
+async function pull(
+  db: WordworkDb,
+  remote: Remote,
+  table: SyncTable,
+  result: SyncResult,
+  touchedCards: Set<string>,
+) {
   const { fromRow } = mappings[table]
   let after = (await getSyncMeta(db)).cursors[table] ?? 0
 
@@ -133,6 +142,9 @@ async function pull(db: WordworkDb, remote: Remote, table: SyncTable, result: Sy
       }
       await t.bulkPut(apply)
       result.pulled += apply.length
+      if (table === 'reviews') {
+        for (const r of apply) touchedCards.add((r as unknown as Review).cardId)
+      }
 
       // Same transaction as the rows, so a crash can't advance the cursor past unsaved data.
       const meta = await getSyncMeta(db)
