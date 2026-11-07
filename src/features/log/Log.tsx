@@ -4,7 +4,9 @@ import { addMinutes, listMinutes, removeMinutes } from '../../db/minutes.ts'
 import { db } from '../../db/schema.ts'
 import { getSettings } from '../../db/settings.ts'
 import { toDay } from '../../domain/day.ts'
-import { formatHours, progress, totalMinutes } from '../../domain/minutes.ts'
+import { heatmap } from '../../domain/heatmap.ts'
+import { dayTotals, formatHours, progress, totalMinutes } from '../../domain/minutes.ts'
+import { streakState } from '../../domain/streak.ts'
 import './Log.css'
 
 const QUICK = [10, 20, 40]
@@ -24,6 +26,9 @@ export default function Log() {
   const { percent } = progress(total, settings.goalHours)
   const today = toDay(new Date(), settings)
   const todays = rows.filter((r) => r.day === today)
+  const totals = dayTotals(rows)
+  const { streak, atRisk } = streakState(totals, today, settings.streakMinutes)
+  const weeks = heatmap(totals, today, settings.streakMinutes)
 
   function submit(e: FormEvent) {
     e.preventDefault()
@@ -54,6 +59,29 @@ export default function Log() {
         <p className="muted">
           {percent}% · {formatHours(totalMinutes(todays))} h today
         </p>
+      </section>
+
+      <section className="log-streak" aria-label="Streak">
+        <p className="log-streak-count">
+          {streak} <span className="muted">day streak</span>
+        </p>
+        {atRisk && (
+          <p className="log-warning" role="status">
+            Log {settings.streakMinutes} minutes today to keep your {streak}-day streak.
+          </p>
+        )}
+        <div className="heatmap" role="img" aria-label="Study time, last 16 weeks">
+          {weeks.flat().map((c) => (
+            <span
+              key={c.day}
+              className="heat"
+              data-level={c.level}
+              data-today={c.today || undefined}
+              data-future={c.future || undefined}
+              title={c.future ? undefined : `${c.day}: ${c.minutes} min`}
+            />
+          ))}
+        </div>
       </section>
 
       <h2>Add time</h2>

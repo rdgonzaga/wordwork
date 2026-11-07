@@ -1,3 +1,5 @@
+import type { DayKey } from './day'
+
 /** Longest single entry, in minutes. The server column is a plain integer. */
 export const MAX_ENTRY_MINUTES = 1_440
 
@@ -6,6 +8,17 @@ export const REVIEW_IDLE_CAP_MS = 60_000
 
 export function totalMinutes(rows: { minutes: number; deleted: boolean }[]): number {
   return rows.reduce((sum, r) => (r.deleted ? sum : sum + r.minutes), 0)
+}
+
+/** Minutes per study day, deleted rows left out. */
+export function dayTotals(
+  rows: { day: DayKey; minutes: number; deleted: boolean }[],
+): Map<DayKey, number> {
+  const totals = new Map<DayKey, number>()
+  for (const r of rows) {
+    if (!r.deleted) totals.set(r.day, (totals.get(r.day) ?? 0) + r.minutes)
+  }
+  return totals
 }
 
 /** Time actually spent on one card: never negative, never past the idle cap. */
