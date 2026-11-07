@@ -2,6 +2,8 @@ import type { ComponentType } from 'react'
 import type { Card, LangCode } from '../db/schema.ts'
 import type { DrillSpec } from '../domain/drill.ts'
 import { german } from './de/index.ts'
+import { italian } from './it/index.ts'
+import { japanese } from './ja/index.ts'
 
 export interface ExtraField {
   key: string
@@ -50,7 +52,7 @@ export interface LanguageModule {
   drill?: DrillSpec<Pick<Card, 'id' | 'term' | 'translation' | 'extra'>>
 }
 
-export const languages: readonly LanguageModule[] = [german]
+export const languages: readonly LanguageModule[] = [german, italian, japanese]
 
 export function getLanguage(code: LangCode): LanguageModule {
   const lang = languages.find((l) => l.code === code)

@@ -1,40 +1,47 @@
-import { useState, type FormEvent } from 'react'
+import { useCallback, useState, type FormEvent } from 'react'
+import LanguagePicker from '../../app/LanguagePicker.tsx'
+import { useActiveLanguage } from '../../app/language.ts'
 import { useLive } from '../../app/useLive.ts'
 import { currentDay, listSentences, listSongs, saveSentence, saveSong } from '../../db/journal.ts'
 import { db } from '../../db/schema.ts'
 import { weekStart } from '../../domain/day.ts'
 import { MAX_NOTES_LENGTH, MAX_SENTENCE_LENGTH, safeUrl } from '../../domain/journal.ts'
-import { languages } from '../../languages/index.ts'
 import './Journal.css'
 
-const LANGUAGE = languages[0].code
-
-async function load() {
+async function load(language: string) {
   return {
     today: await currentDay(db, new Date()),
-    sentences: await listSentences(db, LANGUAGE),
-    songs: await listSongs(db, LANGUAGE),
+    sentences: await listSentences(db, language),
+    songs: await listSongs(db, language),
   }
 }
 
-function SentenceEditor({ day, initial }: { day: string; initial: string }) {
+function SentenceEditor({
+  day,
+  language,
+  initial,
+}: {
+  day: string
+  language: string
+  initial: string
+}) {
   const [text, setText] = useState(initial)
   const changed = text.trim() !== initial
 
   function submit(e: FormEvent) {
     e.preventDefault()
-    void saveSentence(db, day, LANGUAGE, text, new Date())
+    void saveSentence(db, day, language, text, new Date())
   }
 
   return (
     <form className="journal-form" onSubmit={submit}>
       <textarea
-        aria-label="Satz des Tages"
+        aria-label="Sentence of the day"
         rows={3}
         maxLength={MAX_SENTENCE_LENGTH}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        lang={LANGUAGE}
+        lang={language}
         placeholder="One sentence in the language you're learning"
       />
       <button type="submit" disabled={!changed}>
@@ -46,9 +53,11 @@ function SentenceEditor({ day, initial }: { day: string; initial: string }) {
 
 function SongEditor({
   weekOf,
+  language,
   initial,
 }: {
   weekOf: string
+  language: string
   initial: { title: string; artist: string; url: string; notes: string }
 }) {
   const [title, setTitle] = useState(initial.title)
@@ -64,7 +73,7 @@ function SongEditor({
 
   function submit(e: FormEvent) {
     e.preventDefault()
-    void saveSong(db, LANGUAGE, weekOf, { title, artist, url, notes }, new Date())
+    void saveSong(db, language, weekOf, { title, artist, url, notes }, new Date())
   }
 
   return (
@@ -104,9 +113,12 @@ function SongEditor({
 }
 
 export default function Journal() {
-  const data = useLive(load)
+  const { active } = useActiveLanguage()
+  const query = useCallback(() => (active ? load(active) : Promise.resolve(undefined)), [active])
+  const data = useLive(query)
   const [picked, setPicked] = useState<string>()
 
+  if (!active) return <p className="muted">No deck yet.</p>
   if (!data) return <p className="muted">Loading…</p>
 
   const { today, sentences, songs } = data
@@ -119,8 +131,9 @@ export default function Journal() {
   return (
     <>
       <h1>Journal</h1>
+      <LanguagePicker />
 
-      <h2>Satz des Tages</h2>
+      <h2>Sentence of the day</h2>
       <label className="journal-day">
         <span className="muted">Day</span>
         <input
@@ -133,6 +146,7 @@ export default function Journal() {
       <SentenceEditor
         key={`${day}:${sentence?.updatedAt ?? 0}`}
         day={day}
+        language={active}
         initial={sentence?.text ?? ''}
       />
 
@@ -143,7 +157,7 @@ export default function Journal() {
               <button type="button" className="link" onClick={() => setPicked(s.day)}>
                 {s.day}
               </button>
-              <span lang={LANGUAGE}>{s.text}</span>
+              <span lang={active}>{s.text}</span>
             </li>
           ))}
         </ul>
@@ -154,6 +168,7 @@ export default function Journal() {
       <SongEditor
         key={`${thisWeek}:${song?.updatedAt ?? 0}`}
         weekOf={thisWeek}
+        language={active}
         initial={{
           title: song?.title ?? '',
           artist: song?.artist ?? '',

@@ -78,6 +78,7 @@ function CodeSignIn() {
       </button>
       <button
         type="button"
+        className="link"
         disabled={busy}
         onClick={() => {
           setStep('email')
@@ -167,7 +168,7 @@ export default function Account() {
       {state.status === 'signedIn' && (
         <>
           <p>Signed in as {state.email}.</p>
-          <button type="button" onClick={() => void auth.signOut()}>
+          <button type="button" className="btn" onClick={() => void auth.signOut()}>
             Sign out
           </button>
         </>

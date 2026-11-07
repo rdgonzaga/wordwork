@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'wouter'
+import LanguagePicker from '../../app/LanguagePicker.tsx'
+import { useActiveLanguage } from '../../app/language.ts'
 import LookupLinks from '../../app/LookupLinks.tsx'
 import { addCard, deleteCard, updateCard, type CardInput } from '../../db/cards.ts'
 import { db, type Card, type Deck } from '../../db/schema.ts'
@@ -10,6 +12,7 @@ import './Cards.css'
 const blank: CardInput = { term: '', translation: '', extra: {}, tags: [] }
 
 export default function Cards() {
+  const { active, loaded } = useActiveLanguage()
   const [deck, setDeck] = useState<Deck | null | undefined>(undefined)
   const [cards, setCards] = useState<Card[]>([])
   const [query, setQuery] = useState('')
@@ -18,19 +21,18 @@ export default function Cards() {
   const [editing, setEditing] = useState<Card | 'new' | null>(null)
 
   const load = useCallback(async () => {
-    const d = (await db.decks.toArray()).find((x) => !x.deleted) ?? null
+    const d = (await db.decks.toArray()).find((x) => !x.deleted && x.language === active) ?? null
+    const list = d ? await db.cards.where('deckId').equals(d.id).toArray() : []
     setDeck(d)
-    if (d) {
-      const list = await db.cards.where('deckId').equals(d.id).toArray()
-      setCards(list.filter((c) => !c.deleted).sort((a, b) => a.newOrder - b.newOrder))
-    }
-  }, [])
+    setCards(list.filter((c) => !c.deleted).sort((a, b) => a.newOrder - b.newOrder))
+  }, [active])
 
   useEffect(() => {
+    if (!loaded) return
     void (async () => {
       await load()
     })()
-  }, [load])
+  }, [load, loaded])
 
   if (deck === undefined) return <p className="muted">Loading…</p>
   if (deck === null) {
@@ -46,7 +48,9 @@ export default function Cards() {
   const Term = lang.Term
   const q = query.trim().toLowerCase()
   const sources = lessonSources(cards)
-  const inSource = filterBySource(cards, source)
+  // A lesson picked in another language isn't in this one's list.
+  const lesson = sources.includes(source) ? source : ''
+  const inSource = filterBySource(cards, lesson)
   const shown = q ? inSource.filter((c) => lang.searchText(c).includes(q)) : inSource
 
   async function save(input: CardInput, existing: Card | null) {
@@ -66,6 +70,7 @@ export default function Cards() {
   return (
     <>
       <h1>Cards</h1>
+      <LanguagePicker />
       <p className="muted">
         {deck.name} · {cards.length} cards
         {lang.drill && (
@@ -81,7 +86,7 @@ export default function Cards() {
           key={editing === 'new' ? 'new' : editing.id}
           fields={lang.extraFields}
           lookupLinks={lang.lookupLinks}
-          initial={editing === 'new' ? { ...blank, source: source || undefined } : editing}
+          initial={editing === 'new' ? { ...blank, source: lesson || undefined } : editing}
           onSave={(input) => save(input, editing === 'new' ? null : editing)}
           onCancel={() => setEditing(null)}
           onDelete={editing === 'new' ? undefined : () => remove(editing)}
@@ -96,11 +101,7 @@ export default function Cards() {
             onChange={(e) => setQuery(e.target.value)}
           />
           {sources.length > 0 && (
-            <select
-              aria-label="Lesson"
-              value={sources.includes(source) ? source : ''}
-              onChange={(e) => setSource(e.target.value)}
-            >
+            <select aria-label="Lesson" value={lesson} onChange={(e) => setSource(e.target.value)}>
               <option value="">All lessons</option>
               {sources.map((s) => (
                 <option key={s}>{s}</option>
