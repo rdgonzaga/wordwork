@@ -191,3 +191,39 @@ hr {
   font-size: var(--text-sm);
   color: var(--text-muted);
 }
+
+.speak {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.speak svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lookup-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.lookup-links a {
+  color: var(--accent);
+}

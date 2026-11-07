@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import LookupLinks from '../../app/LookupLinks.tsx'
+import Speak from '../../app/Speak.tsx'
 import { addReviewTime, type ReviewClock } from '../../db/minutes.ts'
 import { db, type Deck, type Rating } from '../../db/schema.ts'
 import { loadStudyState, rateCard, undoReview, type StudyState } from '../../db/srs.ts'
@@ -142,7 +144,10 @@ export default function Review() {
         <p>Done for now. Nothing else is due.</p>
       ) : (
         <section className="review-card" aria-live="polite">
-          <Term card={card} />
+          <div className="review-term">
+            <Term card={card} />
+            <Speak text={card.term} lang={lang.speechLang} />
+          </div>
           {!revealed ? (
             <button type="button" className="primary" onClick={() => setRevealed(true)}>
               Show answer
@@ -161,6 +166,7 @@ export default function Review() {
                   )}
                 </p>
               )}
+              <LookupLinks links={lang.lookupLinks(card)} />
               <Ratings
                 labels={previewAll(
                   state.schedules.get(card.id) ?? newSchedule(card.id),
