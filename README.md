@@ -15,6 +15,14 @@ npm run test
 npm run build
 ```
 
+## Backups
+
+Settings has Export and Import (JSON). Merge keeps the newer copy of each item and removes nothing. Replace makes the device match the file: whatever the file lacks is deleted and, once signed in, deleted on your other devices too. Export a fresh backup before using it.
+
+## Bundle size
+
+Production build, 2026-11-07: JS 384 kB (122 kB gzip), CSS 16 kB (3 kB gzip), plus self-hosted font subsets that load on demand. First-card time on a real iPhone is still to be measured on the deployed site.
+
 ## Sync backend (Supabase)
 
 Optional. Without it the app runs fully offline in guest mode.
