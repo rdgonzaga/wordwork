@@ -23,6 +23,7 @@ Optional. Without it the app runs fully offline in guest mode.
 2. Authentication > Sign In / Providers: turn **off** "Allow new users to sign up". Also check "Allow anonymous sign-ins" is off (it's a separate switch); anonymous users get the `authenticated` role and would pass RLS as themselves.
 3. Authentication > Users: add your own user by hand (Add user > Create new user).
 4. SQL editor: run `supabase/migrations/0001_init.sql`.
-5. Copy `.env.example` to `.env.local` and fill in the project URL and anon key (Project Settings > API).
+5. Authentication > Email Templates > Magic Link: the body must include `{{ .Token }}` (the 6-digit code), or sign-in emails arrive without one. Default email sending is rate-limited, so wait a minute between codes.
+6. Copy `.env.example` to `.env.local` and fill in the project URL and anon key (Project Settings > API).
 
 Every table has row level security: a signed-in user can only read and write rows with their own `user_id`. Anon can't touch anything. Nothing is hard-deleted; removals are tombstones (`deleted = true`). The anon key is in the built JS by design, so RLS is the actual protection.
