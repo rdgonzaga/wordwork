@@ -1,4 +1,5 @@
 import { SYNC_TABLES, type SyncTable, type WordworkDb } from '../db/schema.ts'
+import { TICK_ID } from '../db/ticks.ts'
 
 export const EXPORT_APP = 'wordwork'
 export const EXPORT_VERSION = 1
@@ -106,6 +107,12 @@ const SHAPES: Record<SyncTable, Record<string, Check>> = {
     rolloverHour: int(0, 23),
     updatedAt: ts,
   },
+  ticks: {
+    id: (v) => typeof v === 'string' && TICK_ID.test(v),
+    day: optional(day),
+    updatedAt: ts,
+    deleted: bool,
+  },
 }
 
 function checkRow(table: SyncTable, raw: unknown): FileRow | string {
@@ -120,6 +127,9 @@ function checkRow(table: SyncTable, raw: unknown): FileRow | string {
   // The server insists on this, and a row that breaks it would fail to sync on every attempt.
   if (table === 'diary' && out.id !== `${out.day}:${out.language}`) {
     return 'has an id that is not "day:language"'
+  }
+  if (table === 'ticks' && out.day !== undefined && !(out.id as string).startsWith(`${out.day}:`)) {
+    return 'has an id that does not start with its day'
   }
   return out as FileRow
 }

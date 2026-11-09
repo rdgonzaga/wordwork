@@ -377,6 +377,15 @@ describe('what the server would refuse', () => {
     ).toBe(true)
   })
 
+  it('rejects tick ids the server would refuse', () => {
+    const ok = (ticks: object[]) =>
+      parseExport(JSON.stringify({ app: 'wordwork', version: 1, tables: { ticks } })).ok
+    const tick = { id: '2026-11-09:daily.input', day: '2026-11-09', updatedAt: 1, deleted: false }
+    expect(ok([tick, { id: 'setup.placement', updatedAt: 1, deleted: false }])).toBe(true)
+    expect(ok([{ ...tick, id: 'daily.input' }])).toBe(false)
+    expect(ok([{ ...tick, id: 'Bad Id' }])).toBe(false)
+  })
+
   it('rejects strings Postgres cannot store', () => {
     rejects({
       app: 'wordwork',

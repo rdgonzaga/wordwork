@@ -1,4 +1,14 @@
-import type { Card, Deck, Diary, Minutes, Review, Settings, Song, SyncTable } from '../db/schema.ts'
+import type {
+  Card,
+  Deck,
+  Diary,
+  Minutes,
+  Review,
+  Settings,
+  Song,
+  SyncTable,
+  Tick,
+} from '../db/schema.ts'
 
 /** A Postgres row as PostgREST sends and receives it (snake_case, nulls for absent). */
 export type Row = Record<string, unknown>
@@ -197,7 +207,27 @@ const settings: Mapping<Settings> = {
   }),
 }
 
+const ticks: Mapping<Tick> = {
+  toRow: (t) => ({ id: t.id, day: t.day ?? null, updated_at: t.updatedAt, deleted: t.deleted }),
+  fromRow: (r) => ({
+    id: str(r.id),
+    day: opt(r.day),
+    updatedAt: num(r.updated_at),
+    deleted: Boolean(r.deleted),
+    dirty: 0,
+  }),
+}
+
 // The engine treats every table alike (id, updatedAt, dirty); the per-table types stay above.
-export const mappings = { decks, cards, reviews, minutes, diary, songs, settings } as unknown as {
+export const mappings = {
+  decks,
+  cards,
+  reviews,
+  minutes,
+  diary,
+  songs,
+  settings,
+  ticks,
+} as unknown as {
   [K in SyncTable]: Mapping<Local & { dirty: 0 | 1 }>
 }

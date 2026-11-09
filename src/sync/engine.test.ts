@@ -5,6 +5,7 @@ import { getSyncMeta } from '../db/meta.ts'
 import { createDb, type Review, type WordworkDb } from '../db/schema.ts'
 import { updateSettings } from '../db/settings.ts'
 import { rateCard } from '../db/srs.ts'
+import { listTicks, setTick } from '../db/ticks.ts'
 import { runSync } from './engine.ts'
 import { FakeServer } from './fakeServer.ts'
 import { RemoteError } from './remote.ts'
@@ -353,5 +354,25 @@ describe('account', () => {
     const a = device()
     await sync(a)
     await expect(runSync(a, server, 'someone-else')).rejects.toThrow('different account')
+  })
+})
+
+describe('ticks', () => {
+  it('carries a tick and its untick to another device', async () => {
+    const a = device()
+    const b = device()
+    await setTick(a, 'daily.input', true, t0, '2026-11-07')
+    await sync(a)
+    expect(server.row('ticks', '2026-11-07:daily.input')).toMatchObject({
+      day: '2026-11-07',
+      deleted: false,
+    })
+    await sync(b)
+    expect(await listTicks(b)).toEqual(new Set(['2026-11-07:daily.input']))
+
+    await setTick(b, 'daily.input', false, at(1000), '2026-11-07')
+    await sync(b)
+    await sync(a)
+    expect(await listTicks(a)).toEqual(new Set())
   })
 })
