@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link, useRoute } from 'wouter'
+import { useIsOwner } from '../auth/owner.ts'
 
 const icons: Record<string, ReactNode> = {
   today: (
@@ -19,6 +20,12 @@ const icons: Record<string, ReactNode> = {
     <>
       <path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z" />
       <path d="M9 9h6M9 13h6" />
+    </>
+  ),
+  guide: (
+    <>
+      <path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2V5z" />
+      <path d="M8 8l1.5 1.5L12 7M8 14l1.5 1.5L12 13M14 8h2M14 14h2" />
     </>
   ),
   settings: (
@@ -49,10 +56,14 @@ function NavItem({ path, label, icon }: (typeof items)[number]) {
   )
 }
 
+const guide = { path: '/guide', label: 'Guide', icon: 'guide' }
+
 export default function Nav() {
+  // Owner only: the guide sits just before Settings.
+  const shown = useIsOwner() ? [...items.slice(0, -1), guide, ...items.slice(-1)] : items
   return (
     <nav className="nav" aria-label="Main">
-      {items.map((i) => (
+      {shown.map((i) => (
         <NavItem key={i.path} {...i} />
       ))}
     </nav>
