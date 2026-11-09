@@ -1,0 +1,174 @@
+.guide section {
+  padding-bottom: var(--space-6);
+  margin-bottom: var(--space-6);
+  border-bottom: 1px solid var(--border);
+}
+
+.guide section:last-child {
+  border-bottom: 0;
+}
+
+.guide h2 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.guide h3 {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+.guide h2 .muted,
+.guide h3 .muted {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.guide code {
+  font-size: 0.9em;
+  padding: 0 0.25em;
+  background: var(--subtle);
+  border-radius: 4px;
+}
+
+.guide-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.guide-item {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-2) 0;
+  cursor: pointer;
+}
+
+.guide-item input {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  min-height: 0;
+  margin: 0.1rem 0 0;
+  padding: 0;
+  accent-color: var(--accent);
+}
+
+.guide-item input:disabled {
+  opacity: 1;
+}
+
+.guide-item[data-done] > span {
+  color: var(--text-muted);
+}
+
+.guide-auto {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.guide-detail {
+  display: block;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  margin: 0.15rem 0 0;
+}
+
+.guide-minutes {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
+}
+
+.guide-current {
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-3);
+  border: 1px solid var(--text);
+  border-radius: var(--radius);
+}
+
+.guide-current h3 {
+  margin-top: 0;
+}
+
+.guide-block {
+  border-top: 1px solid var(--border);
+}
+
+.guide-block:first-of-type {
+  border-top: 0;
+}
+
+.guide-block > summary {
+  padding: var(--space-3) 0;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.guide-block > summary h2 {
+  display: inline;
+  margin: 0;
+}
+
+.guide-block[open] > summary {
+  padding-bottom: var(--space-2);
+}
+
+.guide-milestone h3 {
+  margin-top: var(--space-6);
+}
+
+.guide-milestone:first-of-type h3 {
+  margin-top: 0;
+}
+
+.guide-stack {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-1) var(--space-4);
+  margin: 0 0 var(--space-2);
+}
+
+.guide-stack dt {
+  font-weight: 500;
+}
+
+.guide-stack dd {
+  margin: 0;
+}
+
+.guide-md {
+  padding-bottom: var(--space-4);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.guide-md a {
+  color: var(--text);
+  text-underline-offset: 3px;
+}
+
+.guide-md ul {
+  padding-left: var(--space-6);
+}
+
+.guide-md table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: var(--space-3) 0;
+}
+
+.guide-md th,
+.guide-md td {
+  padding: var(--space-1) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.guide-md h3 {
+  font-size: var(--text-sm);
+}
