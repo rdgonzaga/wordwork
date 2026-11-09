@@ -3,6 +3,7 @@ import LanguagePicker from '../../app/LanguagePicker.tsx'
 import { useActiveLanguage } from '../../app/language.ts'
 import { applyTheme, getStoredTheme, type Theme } from '../../app/theme.ts'
 import Account from './Account.tsx'
+import DailyLimits from './DailyLimits.tsx'
 import DataTransfer from './DataTransfer.tsx'
 
 const options: Theme[] = ['system', 'light', 'dark']
@@ -38,6 +39,7 @@ export default function Settings() {
         ))}
       </div>
       <LanguageSetting />
+      <DailyLimits />
       <Account />
       <DataTransfer />
     </>

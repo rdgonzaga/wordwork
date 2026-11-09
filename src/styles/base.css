@@ -449,6 +449,25 @@ button.danger {
   }
 }
 
+.limits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.limits label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.limits input {
+  width: 9rem;
+}
+
 .data-actions {
   display: flex;
   gap: var(--space-2);
