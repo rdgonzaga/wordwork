@@ -6,7 +6,9 @@ import { beforeAll, describe, expect, it } from 'vitest'
 
 const A = '00000000-0000-0000-0000-00000000000a'
 const B = '00000000-0000-0000-0000-00000000000b'
-const migration = new URL('../migrations/0001_init.sql', import.meta.url)
+const migrations = ['0001_init.sql', '0002_ticks.sql'].map(
+  (f) => new URL(`../migrations/${f}`, import.meta.url),
+)
 
 let db
 
@@ -49,7 +51,7 @@ beforeAll(async () => {
     grant select on auth.users to authenticated;
     insert into auth.users values ('${A}'), ('${B}');
   `)
-  await db.exec(readFileSync(migration, 'utf8'))
+  for (const m of migrations) await db.exec(readFileSync(m, 'utf8'))
 })
 
 describe('access control', () => {
@@ -273,5 +275,34 @@ describe('constraints', () => {
     await rejects(card('[1,2]'))
     await rejects(card('"str"'))
     await asA(() => db.exec(card('{"gender":"das"}')))
+  })
+})
+
+describe('ticks', () => {
+  const tick = (id, day, at) =>
+    `insert into ticks (id, day, updated_at) values ('${id}', ${day ? `'${day}'` : 'null'}, ${at})
+     on conflict (user_id, id) do update set deleted = excluded.deleted, updated_at = excluded.updated_at`
+
+  it('keeps ticks per user', async () => {
+    await asA(() => db.exec(tick('setup.placement', null, 1)))
+    expect((await asB(() => db.query('select * from ticks'))).rows).toHaveLength(0)
+    await asB(() => db.exec(`update ticks set deleted = true, updated_at = 9 where true`))
+    const { rows } = await db.query(`select deleted from ticks where user_id = '${A}'`)
+    expect(rows).toEqual([{ deleted: false }])
+  })
+
+  it('needs daily ids to start with their day', async () => {
+    await asA(() => db.exec(tick('2026-11-09:daily.input', '2026-11-09', 1)))
+    await expect(asA(() => db.exec(tick('daily.input', '2026-11-09', 1)))).rejects.toThrow()
+    await expect(asA(() => db.exec(tick('Bad Id!', null, 1)))).rejects.toThrow()
+  })
+
+  it('drops stale writes and denies deletes', async () => {
+    await asA(() =>
+      db.exec(`update ticks set deleted = true, updated_at = 0 where id = 'setup.placement'`),
+    )
+    const { rows } = await db.query(`select deleted from ticks where id = 'setup.placement'`)
+    expect(rows).toEqual([{ deleted: false }])
+    await expect(asA(() => db.exec(`delete from ticks`))).rejects.toThrow()
   })
 })

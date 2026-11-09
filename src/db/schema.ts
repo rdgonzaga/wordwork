@@ -88,6 +88,13 @@ export interface Song extends Synced {
   notes: string
 }
 
+/** A ticked guide item. Unticking is a tombstone. */
+export interface Tick extends Synced {
+  /** The item id, or `${day}:${item}` for daily items. */
+  id: string
+  day?: DayKey
+}
+
 export interface Settings extends DaySettings {
   id: 'me'
   newPerDay: number
@@ -107,6 +114,7 @@ export const SYNC_TABLES = [
   'diary',
   'songs',
   'settings',
+  'ticks',
 ] as const
 export type SyncTable = (typeof SYNC_TABLES)[number]
 
@@ -129,6 +137,7 @@ export type WordworkDb = Dexie & {
   diary: EntityTable<Diary, 'id'>
   songs: EntityTable<Song, 'id'>
   settings: EntityTable<Settings, 'id'>
+  ticks: EntityTable<Tick, 'id'>
   syncMeta: EntityTable<SyncMeta, 'id'>
 }
 
@@ -145,6 +154,7 @@ export function createDb(name = 'wordwork'): WordworkDb {
     settings: 'id',
     syncMeta: 'id',
   })
+  db.version(2).stores({ ticks: 'id, day, dirty' })
   return db
 }
 

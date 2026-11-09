@@ -28,6 +28,7 @@ describe('schema', () => {
         'settings',
         'songs',
         'syncMeta',
+        'ticks',
       ].sort(),
     )
   })
