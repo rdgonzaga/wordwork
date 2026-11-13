@@ -5,7 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/wordwork/',
+  base: '/',
   plugins: [
     react(),
     VitePWA({
@@ -16,8 +16,8 @@ export default defineConfig({
         short_name: 'wordwork',
         description: 'Daily language study: flashcards, minutes log, streak.',
         lang: 'en',
-        start_url: '/wordwork/',
-        scope: '/wordwork/',
+        start_url: '/',
+        scope: '/',
         display: 'standalone',
         background_color: '#000000',
         theme_color: '#000000',

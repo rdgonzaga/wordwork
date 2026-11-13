@@ -2,7 +2,7 @@
 
 A small app for studying a language every day. It shows you the words you're about to forget, keeps track of how long you've studied, and nudges you to write a sentence a day.
 
-Try it: https://rdgonzaga.github.io/wordwork/
+Try it: https://wordwork.raigon.dev/
 
 ## What it does
 
